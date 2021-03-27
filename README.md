@@ -15,8 +15,8 @@ That's it.
 
 # Update Log - 업데이트 로그
 ## History
-21-03-27 ) Release 1.0  
-21-XX-XX ) No plan
+- 21-03-27 ) Release 1.0  
+- 21-XX-XX ) No plan
 
 ## 1.0 (First release)
 - Add Gameplay (게임플레이 추가
