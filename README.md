@@ -6,6 +6,15 @@ Check for updates from time to time.
 업데이트는 주기적으로 **할 수도** 있으니 수시로 확인해주시면 감사하겠습니다.
 한국어 번역은 제작자의 귀차니즘으로 인해 번역을 한듯 안한듯한 퀄리티이니 양해부탁드립니다. (번역은 설정에서 변경 가능합니다)  
 
+# How to Apply? - 적용법
+※ Python(https://python.org) and Pygame are required to run this game.  
+※ 이 게임을 실행하려면 파이썬과 파이게임이 필요합니다.
+
+- Go ahead to Release                       ( 깃허브의 릴리즈 페이지로 이동합니다
+- Download Last release's "Zip File"        ( 마지막 릴리즈의 Zip 파일을 다운로드 받습니다
+- Extract zip file (Whatever the path is)   ( zip 파일을 압축해제합니다. (위치 상관 없음)
+- Just execute "main.py"                    ( "main.py"를 실행합니다.
+
 # How to Control? - 조작법
 Player1 : a, d  
 Player2 : left key, right key  
