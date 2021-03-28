@@ -13,7 +13,7 @@ Check for updates from time to time.
 - Go ahead to Release                       ( 깃허브의 릴리즈 페이지로 이동합니다
 - Download Last release's "Zip File"        ( 마지막 릴리즈의 Zip 파일을 다운로드 받습니다
 - Extract zip file (Whatever the path is)   ( zip 파일을 압축해제합니다. (위치 상관 없음)
-- Just execute "main.py"                    ( "main.py"를 실행합니다.
+- Just execute "main.pyw"                   ( "main.pyw"를 실행합니다.
 
 # How to Control? - 조작법
 Player1 : a, d  
