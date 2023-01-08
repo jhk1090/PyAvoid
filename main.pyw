@@ -2,7 +2,7 @@ import pygame
 import random
 import os
 import sys
-import typing
+import res
 
 from pygame.locals import *
 
@@ -13,54 +13,17 @@ pygame.mixer.init()
 # 라이브러리
 this_path = os.path.dirname(sys.argv[0])
 
-# 배경
-b_darken = [f"{this_path}\\resource\\background\\light\\darken.png",
-        f"{this_path}\\resource\\background\\dark\\darken.png"]
-b_default = [f"{this_path}\\resource\\background\\light\\default.png",
-        f"{this_path}\\resource\\background\\dark\\default.png"]
-b_solid = [f"{this_path}\\resource\\background\\light\\solid.png",
-        f"{this_path}\\resource\\background\\dark\\solid.png"]
-# 영문 한글 필터
-b_f_on_title = [f"{this_path}\\resource\\background\\filter\\en\\on_title.png",
-            f"{this_path}\\resource\\background\\filter\\ko\\on_title.png",]
-b_f_on_end = [f"{this_path}\\resource\\background\\filter\\en\\on_end.png",
-            f"{this_path}\\resource\\background\\filter\\ko\\on_end.png",]
-b_f_on_info = [f"{this_path}\\resource\\background\\filter\\en\\on_info.png",
-            f"{this_path}\\resource\\background\\filter\\ko\\on_info.png",]
-b_f_on_setting = [f"{this_path}\\resource\\background\\filter\\en\\on_setting.png",
-            f"{this_path}\\resource\\background\\filter\\ko\\on_setting.png",]
-# 엔티티
-e_poop = f"{this_path}\\resource\\entity\\poop.png"
-e_poop2 = f"{this_path}\\resource\\entity\\poop2.png"
-e_poop3 = f"{this_path}\\resource\\entity\\poop3.png"
-e_sprite = f"{this_path}\\resource\\entity\\sprite.png"
-e_sprite2 = f"{this_path}\\resource\\entity\\sprite2.png"
-
-# 아이템
-i_aidkit = f"{this_path}\\resource\\item\\aidkit.png"
-# 오브젝트
-o_check = f"{this_path}\\resource\\object\\check.png"
-# 폰트
-f_NeoDunggeunmo = f"{this_path}\\resource\\font\\NeoDunggeunmoPro-Regular.ttf"
-# 음악
-s_raving_energe = [f"{this_path}\\resource\\sound\\Raving_Energy.mp3",
-                f"{this_path}\\resource\\sound\\Raving_Energy_(faster).mp3",]
-s_rollin_at_5 = [f"{this_path}\\resource\\sound\\Rollin_at_5.mp3",
-                f"{this_path}\\resource\\sound\\Rollin_at_5_(electronic).mp3",]                
-# 빔
-empty_image = f"{this_path}\\resource\\empty.png"
-
 # 기본 설정 (수정 금지)
 screen_width = 480
 screen_height = 640
 screen = pygame.display.set_mode((screen_width, screen_height))
-pygame.display.set_icon(pygame.image.load(e_poop))
+pygame.display.set_icon(pygame.image.load(res.entity["poop"]))
 pygame.display.set_caption("Avoid!")
 clock = pygame.time.Clock()
 
 # 기본 배경
-background = pygame.image.load(b_default[0])
-setting_font = pygame.font.Font(f_NeoDunggeunmo, 22)
+background = pygame.image.load(res.background["default"][0])
+setting_font = pygame.font.Font(res.font["NeoDunggeunmo"], 22)
 
 class s_root():
     def __init__(self):
@@ -191,7 +154,7 @@ class Entity():
 
     # 숨기기
     def hideEntity(self):
-        self.image = pygame.image.load(empty_image)
+        self.image = pygame.image.load(res.empty_image)
 
     # 보이기
     def showEntity(self):
@@ -221,7 +184,7 @@ class Player(Entity):
     # 체력 피해
     def giveDamage(self, damage):
         self.health -= damage
-        game_font = pygame.font.Font(f_NeoDunggeunmo, 20)
+        game_font = pygame.font.Font(res.font["NeoDunggeunmo"], 20)
         gotDamage = game_font.render("-" + str(damage), True, (255, 0, 0))
         screen.blit(gotDamage, (self.x + 15, self.y - 15))
         if self.health <= 0:
@@ -230,7 +193,7 @@ class Player(Entity):
     # 체력 획득
     def giveHeal(self, health):
         self.health += health
-        game_font = pygame.font.Font(f_NeoDunggeunmo, 20)
+        game_font = pygame.font.Font(res.font["NeoDunggeunmo"], 20)
         gotHeal = game_font.render("+" + str(health), True, (0, 255, 0))
         screen.blit(gotHeal, (self.x + 15, self.y - 15))
         if self.health >= 100:
@@ -345,7 +308,7 @@ class AidKit(Item):
 # 음악 재생
 class Sound:
     def __init__(self):
-        self.soundtrack = s_rollin_at_5
+        self.soundtrack = res.sound["rollin_at_5"]
         self.isStart = False
         self.isToned = False
         self.theme = selectS_s[5].main
@@ -354,11 +317,11 @@ class Sound:
     def setMusicTheme(self):
         if selectS_s[5].main == "LIGHT":
             self.theme = selectS_s[5].main
-            self.soundtrack = s_rollin_at_5
+            self.soundtrack = res.sound["rollin_at_5"]
             self.load = pygame.mixer.music.load(self.soundtrack[0])
         elif selectS_s[5].main == "DARK":
             self.theme = selectS_s[5].main
-            self.soundtrack = s_raving_energe
+            self.soundtrack = res.sound["raving_energy"]
             self.load = pygame.mixer.music.load(self.soundtrack[0])
 
     def play(self):
@@ -382,7 +345,7 @@ class Sound:
 
 PoopList = []   # 똥 인스턴스 생성 목록
 PoopCount = 0   # 똥 갯수
-PoopImage = e_poop
+PoopImage = res.entity["poop"]
 PoopDamage = 30
 ItemList = []   # 아이템 인스턴스 생성 목록
 ItemCount = 0   # 아이템 갯수
@@ -391,12 +354,12 @@ def loadBackground(backType, filter=None) -> list:
     returnValue = []
     if selectS_s[5].main == "LIGHT":
         if selectS_s[6].main:
-            returnValue.append(pygame.image.load(b_solid[0]))
+            returnValue.append(pygame.image.load(res.background["solid"][0]))
         else:
             returnValue.append(pygame.image.load(backType[0]))
     elif selectS_s[5].main == "DARK":
         if selectS_s[6].main:
-            returnValue.append(pygame.image.load(b_solid[1]))
+            returnValue.append(pygame.image.load(res.background["solid"][1]))
         else:
             returnValue.append(pygame.image.load(backType[1]))
 
@@ -416,8 +379,8 @@ areaList = ["title", "setting", "info", "start", "end"]    # 구역 목록
 area = areaList[0]                      # 현재 구역
 
 # 인스턴스
-player = Player(e_sprite)                       # 플레이어 메인 인스턴스
-player2 = Player(e_sprite2)
+player = Player(res.entity["sprite"])                       # 플레이어 메인 인스턴스
+player2 = Player(res.entity["sprite2"])
 sound = Sound()                         # 배경 음악
 
 selectS_s[0].selected = True
@@ -428,7 +391,7 @@ running = True
 while running:
     dt = clock.tick(selectS_s[8].main)                                                        # fps 설정
     fps = clock.get_fps()                                                           # fps 구하기
-    fontfps = pygame.font.Font(f_NeoDunggeunmo, 20)
+    fontfps = pygame.font.Font(res.font["NeoDunggeunmo"], 20)
     if (selectS_s[7]).main:
         fpscounter = fontfps.render(f"{int(fps)}fps", True, (255, 255, 255))        # fps 화면에 렌더링
     else:
@@ -449,16 +412,16 @@ while running:
                     ItemCount = selectS_s[1].main
                     
                     if selectS_s[0].main == "Normal":
-                        PoopImage = e_poop
+                        PoopImage = res.entity["poop"]
                         PoopDamage = 30
                     elif selectS_s[0].main == "Poison":
-                        PoopImage = e_poop2
+                        PoopImage = res.entity["poop2"]
                         PoopDamage = 70
                     elif selectS_s[0].main == "Radiation":
-                        PoopImage = e_poop3
+                        PoopImage = res.entity["poop3"]
                         PoopDamage = 100
                     elif selectS_s[0].main == "MIXED":
-                        PoopImage = [e_poop, e_poop2, e_poop3]
+                        PoopImage = [res.entity["poop"], res.entity["poop2"], res.entity["poop3"]]
                         PoopDamage = [30, 70, 100]
 
                     if selectS_s[0].main != "MIXED":
@@ -474,7 +437,7 @@ while running:
                                 PoopList.append(Poop(PoopImage[2]))
 
                     for i in range(ItemCount):      # 난이도 만큼 인스턴스 생성
-                        ItemList.append(AidKit(i_aidkit))
+                        ItemList.append(AidKit(res.item["aidkit"]))
 
                     pygame.display.update()
                 elif event.key == pygame.K_LCTRL:
@@ -565,7 +528,7 @@ while running:
     # title 구역
     if area == areaList[0]:
         sound.setMusicTheme()
-        background, background_filter = loadBackground(b_darken, b_f_on_title)  # 블러된 배경화면 로딩
+        background, background_filter = loadBackground(res.background["darken"], res.background["filter"]["on_title"])  # 블러된 배경화면 로딩
 
         screen.blit(background, (0, 0))
         screen.blit(background_filter, (0, 0))
@@ -576,8 +539,8 @@ while running:
         for index, i in enumerate(selectS_s):
             selectS_s[index].isSelect()
 
-        background, background_filter = loadBackground(b_darken, b_f_on_setting)
-        game_font = pygame.font.Font(f_NeoDunggeunmo, 17)
+        background, background_filter = loadBackground(res.background["darken"], res.background["filter"]["on_setting"])
+        game_font = pygame.font.Font(res.font["NeoDunggeunmo"], 17)
 
         screen.blit(background, (0, 0))
         screen.blit(background_filter, (0, 0))
@@ -595,7 +558,7 @@ while running:
 
     # info 구역
     elif area == areaList[2]:
-        background, background_filter = loadBackground(b_darken, b_f_on_info)
+        background, background_filter = loadBackground(res.background["darken"], res.background["filter"]["on_info"])
         screen.blit(background, (0, 0))
         screen.blit(background_filter, (0, 0))
         screen.blit(fpscounter, (screen_width - 65, 5))
@@ -605,7 +568,7 @@ while running:
         if not sound.isStart:
             sound.play()
         
-        background = loadBackground(b_default)[0]       # 배경화면 로딩
+        background = loadBackground(res.background["default"])[0]       # 배경화면 로딩
         screen.blit(background, (0, 0))
 
         if selectS_s[2].main == "Single":
@@ -726,7 +689,7 @@ while running:
 
         if len(ItemList) != ItemCount: 
             for i in range(ItemCount - len(ItemList)):
-                ItemList.append(AidKit(i_aidkit))
+                ItemList.append(AidKit(res.item["aidkit"]))
 
         if len(PoopList) != PoopCount:
             for i in range(PoopCount - len(PoopList)):  
@@ -740,7 +703,7 @@ while running:
                     elif delObj[i].image_str == PoopImage[2]:
                         PoopList.append(Poop(PoopImage[2]))
         
-        game_font = pygame.font.Font(f_NeoDunggeunmo, 30)
+        game_font = pygame.font.Font(res.font["NeoDunggeunmo"], 30)
         scoreboard = game_font.render("P1: Score: " + str(round(player.score, 2)), True, (255, 255, 255))   # 점수를 화면에 렌더링
         screen.blit(scoreboard, (10, 10))
         healthboard = game_font.render("P1: HP: " + str(player.health), True, (255, 255, 255))   # 점수를 화면에 렌더링
@@ -756,14 +719,14 @@ while running:
     elif area == areaList[4]:
         sound.stop()
         sound.reset()
-        background, background_filter = loadBackground(b_darken, b_f_on_end)       # 블러 배경화면 로딩
+        background, background_filter = loadBackground(res.background["darken"], res.background["filter"]["on_end"])       # 블러 배경화면 로딩
         screen.blit(background, (0, 0))
         screen.blit(background_filter, (0, 0))
         screen.blit(fpscounter, (screen_width - 65, 5))
 
         player.score = round(player.score, 2)
         player2.score = round(player2.score, 2)
-        game_font = pygame.font.Font(f_NeoDunggeunmo, 30)
+        game_font = pygame.font.Font(res.font["NeoDunggeunmo"], 30)
         finalScore = game_font.render("P1: Score: " + str(player.score), True, (255, 255, 255))   # 최종 점수 렌더링
         screen.blit(finalScore, (screen_width / 3, screen_height / 2 + 45))
         if selectS_s[2].main == "Multi":
