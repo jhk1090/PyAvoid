@@ -545,13 +545,13 @@ while running:
         screen.blit(background, (0, 0))
         screen.blit(background_filter, (0, 0))
         screen.blit(fpscounter, (screen_width - 65, 5))
-        screen.blit(selectS_s[0].text_render, (screen_width / 4 - 25, screen_height / 2 + -15)) # 20 간격
-        screen.blit(selectS_s[1].text_render, (screen_width / 4 + 25, screen_height / 2 + 10))
-        screen.blit(selectS_s[2].text_render, (screen_width / 4 - 5, screen_height / 2 + 30))
+        screen.blit(selectS_s[0].text_render, (screen_width / 4 + 45, screen_height / 2 + -15)) # 20 간격
+        screen.blit(selectS_s[1].text_render, (screen_width / 4 + 45, screen_height / 2 + 10))
+        screen.blit(selectS_s[2].text_render, (screen_width / 4 + 45, screen_height / 2 + 30))
         screen.blit(selectS_s[3].text_render, (screen_width / 4 + 45, screen_height / 2 + 50))
         screen.blit(selectS_s[4].text_render, (screen_width / 2 + 150, screen_height / 2 + -15))
         screen.blit(selectS_s[5].text_render, (screen_width / 4 + 5, screen_height / 2 + 100))
-        screen.blit(selectS_s[6].text_render, (screen_width / 4 - 10, screen_height / 2 + 120))
+        screen.blit(selectS_s[6].text_render, (screen_width / 4 + 5, screen_height / 2 + 120))
         screen.blit(selectS_s[7].text_render, (screen_width / 2 + 150, screen_height / 2 + 5))
         screen.blit(selectS_s[8].text_render, (screen_width / 2 + 150, screen_height / 2 + 25))
         screen.blit(selectS_s[9].text_render, (screen_width / 2 + 150, screen_height / 2 + 45))
