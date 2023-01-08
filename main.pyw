@@ -2,6 +2,7 @@ import pygame
 import random
 import os
 import sys
+import typing
 
 from pygame.locals import *
 
@@ -13,41 +14,41 @@ pygame.mixer.init()
 this_path = os.path.dirname(sys.argv[0])
 
 # 배경
-b_blur = [f"{this_path}/resource/background/light/blur.png",
-        f"{this_path}/resource/background/dark/blur.png"]
-b_default = [f"{this_path}/resource/background/light/default.png",
-        f"{this_path}/resource/background/dark/default.png"]
-b_solid = [f"{this_path}/resource/background/light/solid.png",
-        f"{this_path}/resource/background/dark/solid.png"]
-# 영문/한글 필터
-b_f_on_title = [f"{this_path}/resource/background/filter/en/on_title.png",
-            f"{this_path}/resource/background/filter/ko/on_title.png",]
-b_f_on_end = [f"{this_path}/resource/background/filter/en/on_end.png",
-            f"{this_path}/resource/background/filter/ko/on_end.png",]
-b_f_on_info = [f"{this_path}/resource/background/filter/en/on_info.png",
-            f"{this_path}/resource/background/filter/ko/on_info.png",]
-b_f_on_setting = [f"{this_path}/resource/background/filter/en/on_setting.png",
-            f"{this_path}/resource/background/filter/ko/on_setting.png",]
+b_darken = [f"{this_path}\\resource\\background\\light\\darken.png",
+        f"{this_path}\\resource\\background\\dark\\darken.png"]
+b_default = [f"{this_path}\\resource\\background\\light\\default.png",
+        f"{this_path}\\resource\\background\\dark\\default.png"]
+b_solid = [f"{this_path}\\resource\\background\\light\\solid.png",
+        f"{this_path}\\resource\\background\\dark\\solid.png"]
+# 영문 한글 필터
+b_f_on_title = [f"{this_path}\\resource\\background\\filter\\en\\on_title.png",
+            f"{this_path}\\resource\\background\\filter\\ko\\on_title.png",]
+b_f_on_end = [f"{this_path}\\resource\\background\\filter\\en\\on_end.png",
+            f"{this_path}\\resource\\background\\filter\\ko\\on_end.png",]
+b_f_on_info = [f"{this_path}\\resource\\background\\filter\\en\\on_info.png",
+            f"{this_path}\\resource\\background\\filter\\ko\\on_info.png",]
+b_f_on_setting = [f"{this_path}\\resource\\background\\filter\\en\\on_setting.png",
+            f"{this_path}\\resource\\background\\filter\\ko\\on_setting.png",]
 # 엔티티
-e_poop = f"{this_path}/resource/entity/poop.png"
-e_poop2 = f"{this_path}/resource/entity/poop2.png"
-e_poop3 = f"{this_path}/resource/entity/poop3.png"
-e_sprite = f"{this_path}/resource/entity/sprite.png"
-e_sprite2 = f"{this_path}/resource/entity/sprite2.png"
+e_poop = f"{this_path}\\resource\\entity\\poop.png"
+e_poop2 = f"{this_path}\\resource\\entity\\poop2.png"
+e_poop3 = f"{this_path}\\resource\\entity\\poop3.png"
+e_sprite = f"{this_path}\\resource\\entity\\sprite.png"
+e_sprite2 = f"{this_path}\\resource\\entity\\sprite2.png"
 
 # 아이템
-i_aidkit = f"{this_path}/resource/item/aidkit.png"
+i_aidkit = f"{this_path}\\resource\\item\\aidkit.png"
 # 오브젝트
-o_check = f"{this_path}/resource/object/check.png"
+o_check = f"{this_path}\\resource\\object\\check.png"
 # 폰트
-f_NanumBarunGothic = f"{this_path}/resource/font/NanumBarunGothic.ttf"
+f_NeoDunggeunmo = f"{this_path}\\resource\\font\\NeoDunggeunmoPro-Regular.ttf"
 # 음악
-s_raving_energe = [f"{this_path}/resource/sound/Raving_Energy.mp3",
-                f"{this_path}/resource/sound/Raving_Energy_(faster).mp3",]
-s_rollin_at_5 = [f"{this_path}/resource/sound/Rollin_at_5.mp3",
-                f"{this_path}/resource/sound/Rollin_at_5_(electronic).mp3",]                
+s_raving_energe = [f"{this_path}\\resource\\sound\\Raving_Energy.mp3",
+                f"{this_path}\\resource\\sound\\Raving_Energy_(faster).mp3",]
+s_rollin_at_5 = [f"{this_path}\\resource\\sound\\Rollin_at_5.mp3",
+                f"{this_path}\\resource\\sound\\Rollin_at_5_(electronic).mp3",]                
 # 빔
-empty_image = f"{this_path}/resource/empty.png"
+empty_image = f"{this_path}\\resource\\empty.png"
 
 # 기본 설정 (수정 금지)
 screen_width = 480
@@ -59,7 +60,7 @@ clock = pygame.time.Clock()
 
 # 기본 배경
 background = pygame.image.load(b_default[0])
-setting_font = pygame.font.Font(f_NanumBarunGothic, 22)
+setting_font = pygame.font.Font(f_NeoDunggeunmo, 22)
 
 class s_root():
     def __init__(self):
@@ -76,7 +77,7 @@ class s_root():
 
     def isSelect(self):
         if self.selected:
-            self.color = (74, 237, 217)
+            self.color = (86, 255, 86)
         else:
             self.color = (255, 255, 255)
         self.text_render = setting_font.render(str(self.main), True, self.color)
@@ -141,7 +142,7 @@ class s_show_fps(s_root):
 class s_fps_set(s_root):
     def __init__(self):
         super().__init__()
-        self.main = 30                # fps 설정
+        self.main = 144                # fps 설정
         self.selection = [30, 60, 144, 10, 20]
         self.text_render = setting_font.render(str(self.main), True, self.color)
 
@@ -163,16 +164,19 @@ selectS = 0
 
 # 엔티티
 class Entity():
-    def __init__(self, image):
-        self.image_o:pygame.Surface = pygame.image.load(image)
+    def __init__(self, image: str, scale: float):
         self.image:pygame.Surface = pygame.image.load(image)
         self.image_str:str = image
-        self.size:list = self.image.get_rect().size            
-        self.width:int = self.size[0]                          
-        self.height:int = self.size[1]                         
-        self.x:int = 0
-        self.y:int = 0                                         
-        self.speed:int = 0                                     
+        self.before_size: list = self.image.get_rect().size
+        self.scale: tuple(float, float) = (self.before_size[0] * scale, self.before_size[1] * scale)
+        self.image = pygame.transform.scale(self.image, self.scale)
+        self.image_o = pygame.transform.scale(self.image, self.scale)
+        self.size:list = self.image.get_rect().size          
+        self.width:float = self.size[0]                     
+        self.height:float = self.size[1]
+        self.x:float = 0
+        self.y:float = 0                                         
+        self.speed:float = 0                                     
         self.rect:Rect = None
 
     # 충돌 감지 비교 요소
@@ -196,14 +200,13 @@ class Entity():
 # 플레이어
 class Player(Entity):
     def __init__(self, image):
-        super().__init__(image)
+        super().__init__(image, 0.6)
         self.x = (screen_width / 2) - (self.width / 2)         
-        self.y = screen_height - self.height                # 플레이어 y좌표
+        self.y = float(screen_height) - self.height             # 플레이어 y좌표
         self.to_x = 0                                       # 플레이어 이동할 x좌표
-        self.speed = 0.3                                    # 플레이어 속도
+        self.speed = 0.2                                    # 플레이어 속도
         self.score = 0                                      # 플레이어 점수
         self.health = 100                                   # 플레이어 체력
-
     # 화면 밖 나가기 제한
     def limitPos(self):
         if self.x < 0:
@@ -218,7 +221,7 @@ class Player(Entity):
     # 체력 피해
     def giveDamage(self, damage):
         self.health -= damage
-        game_font = pygame.font.Font(f_NanumBarunGothic, 20)
+        game_font = pygame.font.Font(f_NeoDunggeunmo, 20)
         gotDamage = game_font.render("-" + str(damage), True, (255, 0, 0))
         screen.blit(gotDamage, (self.x + 15, self.y - 15))
         if self.health <= 0:
@@ -227,7 +230,7 @@ class Player(Entity):
     # 체력 획득
     def giveHeal(self, health):
         self.health += health
-        game_font = pygame.font.Font(f_NanumBarunGothic, 20)
+        game_font = pygame.font.Font(f_NeoDunggeunmo, 20)
         gotHeal = game_font.render("+" + str(health), True, (0, 255, 0))
         screen.blit(gotHeal, (self.x + 15, self.y - 15))
         if self.health >= 100:
@@ -265,8 +268,8 @@ class Player(Entity):
 # 똥
 class Poop(Entity):
     def __init__(self, image):
-        super().__init__(image)
-        self.x = random.randint(0, screen_width - self.width)
+        super().__init__(image, 0.8)
+        self.x = random.randint(0, screen_width - int(round(self.width)))
         self.y = 0 - self.height
         self.speed = (random.randint(1, 4)) / 10
         self.rect = None
@@ -295,7 +298,7 @@ class Poop(Entity):
 # 아이템
 class Item(Entity):
     def __init__(self, image):
-        super().__init__(image)
+        super().__init__(image, 0.8)
         self.isLand:bool = False
         self.onLandTime:int = 0
         self.nowTime:int = 0
@@ -334,7 +337,7 @@ class Item(Entity):
 class AidKit(Item):
     def __init__(self, image):
         super().__init__(image)
-        self.x = random.randint(0, screen_width - self.width)
+        self.x = random.randint(0, screen_width - int(round(self.width)))
         self.y = 0 - self.height
         self.speed = (random.randint(1, 4)) / 10
         self.heal = 5
@@ -425,7 +428,7 @@ running = True
 while running:
     dt = clock.tick(selectS_s[8].main)                                                        # fps 설정
     fps = clock.get_fps()                                                           # fps 구하기
-    fontfps = pygame.font.Font(f_NanumBarunGothic, 20)
+    fontfps = pygame.font.Font(f_NeoDunggeunmo, 20)
     if (selectS_s[7]).main:
         fpscounter = fontfps.render(f"{int(fps)}fps", True, (255, 255, 255))        # fps 화면에 렌더링
     else:
@@ -562,7 +565,7 @@ while running:
     # title 구역
     if area == areaList[0]:
         sound.setMusicTheme()
-        background, background_filter = loadBackground(b_blur, b_f_on_title)  # 블러된 배경화면 로딩
+        background, background_filter = loadBackground(b_darken, b_f_on_title)  # 블러된 배경화면 로딩
 
         screen.blit(background, (0, 0))
         screen.blit(background_filter, (0, 0))
@@ -573,26 +576,26 @@ while running:
         for index, i in enumerate(selectS_s):
             selectS_s[index].isSelect()
 
-        background, background_filter = loadBackground(b_blur, b_f_on_setting)
-        game_font = pygame.font.Font(f_NanumBarunGothic, 17)
+        background, background_filter = loadBackground(b_darken, b_f_on_setting)
+        game_font = pygame.font.Font(f_NeoDunggeunmo, 17)
 
         screen.blit(background, (0, 0))
         screen.blit(background_filter, (0, 0))
         screen.blit(fpscounter, (screen_width - 65, 5))
-        screen.blit(selectS_s[0].text_render, (screen_width / 4 + 40, screen_height / 2 + -16)) # 24 간격
-        screen.blit(selectS_s[1].text_render, (screen_width / 4 + 40, screen_height / 2 + 6))
-        screen.blit(selectS_s[2].text_render, (screen_width / 4 + 40, screen_height / 2 + 28))
-        screen.blit(selectS_s[3].text_render, (screen_width / 4 + 40, screen_height / 2 + 50))
-        screen.blit(selectS_s[4].text_render, (screen_width / 2 + 150, screen_height / 2 + -16))
-        screen.blit(selectS_s[5].text_render, (screen_width / 2 + 150, screen_height / 2 + 6))
-        screen.blit(selectS_s[6].text_render, (screen_width / 2 + 150, screen_height / 2 + 28))
-        screen.blit(selectS_s[7].text_render, (screen_width / 2 + 150, screen_height / 2 + 50))
-        screen.blit(selectS_s[8].text_render, (screen_width / 2 + 150, screen_height / 2 + 74))
-        screen.blit(selectS_s[9].text_render, (screen_width / 2 + 150, screen_height / 2 + 98))
+        screen.blit(selectS_s[0].text_render, (screen_width / 4 - 25, screen_height / 2 + -15)) # 20 간격
+        screen.blit(selectS_s[1].text_render, (screen_width / 4 + 25, screen_height / 2 + 10))
+        screen.blit(selectS_s[2].text_render, (screen_width / 4 - 5, screen_height / 2 + 30))
+        screen.blit(selectS_s[3].text_render, (screen_width / 4 + 45, screen_height / 2 + 50))
+        screen.blit(selectS_s[4].text_render, (screen_width / 2 + 150, screen_height / 2 + -15))
+        screen.blit(selectS_s[5].text_render, (screen_width / 4 + 5, screen_height / 2 + 100))
+        screen.blit(selectS_s[6].text_render, (screen_width / 4 - 10, screen_height / 2 + 120))
+        screen.blit(selectS_s[7].text_render, (screen_width / 2 + 150, screen_height / 2 + 5))
+        screen.blit(selectS_s[8].text_render, (screen_width / 2 + 150, screen_height / 2 + 25))
+        screen.blit(selectS_s[9].text_render, (screen_width / 2 + 150, screen_height / 2 + 45))
 
     # info 구역
     elif area == areaList[2]:
-        background, background_filter = loadBackground(b_blur, b_f_on_info)
+        background, background_filter = loadBackground(b_darken, b_f_on_info)
         screen.blit(background, (0, 0))
         screen.blit(background_filter, (0, 0))
         screen.blit(fpscounter, (screen_width - 65, 5))
@@ -737,7 +740,7 @@ while running:
                     elif delObj[i].image_str == PoopImage[2]:
                         PoopList.append(Poop(PoopImage[2]))
         
-        game_font = pygame.font.Font(f_NanumBarunGothic, 30)
+        game_font = pygame.font.Font(f_NeoDunggeunmo, 30)
         scoreboard = game_font.render("P1: Score: " + str(round(player.score, 2)), True, (255, 255, 255))   # 점수를 화면에 렌더링
         screen.blit(scoreboard, (10, 10))
         healthboard = game_font.render("P1: HP: " + str(player.health), True, (255, 255, 255))   # 점수를 화면에 렌더링
@@ -753,14 +756,14 @@ while running:
     elif area == areaList[4]:
         sound.stop()
         sound.reset()
-        background, background_filter = loadBackground(b_blur, b_f_on_end)       # 블러 배경화면 로딩
+        background, background_filter = loadBackground(b_darken, b_f_on_end)       # 블러 배경화면 로딩
         screen.blit(background, (0, 0))
         screen.blit(background_filter, (0, 0))
         screen.blit(fpscounter, (screen_width - 65, 5))
 
         player.score = round(player.score, 2)
         player2.score = round(player2.score, 2)
-        game_font = pygame.font.Font(f_NanumBarunGothic, 30)
+        game_font = pygame.font.Font(f_NeoDunggeunmo, 30)
         finalScore = game_font.render("P1: Score: " + str(player.score), True, (255, 255, 255))   # 최종 점수 렌더링
         screen.blit(finalScore, (screen_width / 3, screen_height / 2 + 45))
         if selectS_s[2].main == "Multi":
