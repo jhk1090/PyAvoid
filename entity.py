@@ -119,6 +119,7 @@ class Poop(Entity):
         self.y = 0 - self.height
         self.speed = (random.randint(1, 4)) / 10
         self.rect = None
+        self.damage = 0;
         if settings["mode"].main == "MIXED":
             if self.image_str == PoopImage[0]:
                 self.damage = PoopDamage[0]

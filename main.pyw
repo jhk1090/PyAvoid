@@ -9,8 +9,8 @@ from pygame.locals import *
 pygame.init()
 pygame.mixer.init()
 from settings import settings, settings_index
-from entity import *
-
+from entity import Player, Poop, AidKit
+import entity
 # 라이브러리
 this_path = os.path.dirname(sys.argv[0])
 
@@ -121,36 +121,35 @@ while running:
             if event.type == pygame.KEYDOWN:    # 키를 눌렀을때
                 if event.key == pygame.K_SPACE:
                     area = areaList[3]
-                    PoopCount = settings["difficulty"].main * 3
-                    ItemCount = settings["difficulty"].main
-                    
+                    entity.PoopCount = settings["difficulty"].main * 3
+                    entity.ItemCount = settings["difficulty"].main
                     if settings["mode"].main == "Normal":
-                        PoopImage = asset.entity["poop"]
-                        PoopDamage = 30
+                        entity.PoopImage = asset.entity["poop"]
+                        entity.PoopDamage = 30
                     elif settings["mode"].main == "Poison":
-                        PoopImage = asset.entity["poop2"]
-                        PoopDamage = 70
+                        entity.PoopImage = asset.entity["poop2"]
+                        entity.PoopDamage = 70
                     elif settings["mode"].main == "Radiation":
-                        PoopImage = asset.entity["poop3"]
-                        PoopDamage = 100
+                        entity.PoopImage = asset.entity["poop3"]
+                        entity.PoopDamage = 100
                     elif settings["mode"].main == "MIXED":
-                        PoopImage = [asset.entity["poop"], asset.entity["poop2"], asset.entity["poop3"]]
-                        PoopDamage = [30, 70, 100]
+                        entity.PoopImage = [asset.entity["poop"], asset.entity["poop2"], asset.entity["poop3"]]
+                        entity.PoopDamage = [30, 70, 100]
 
                     if settings["mode"].main != "MIXED":
-                        for i in range(PoopCount):      # 난이도 만큼 인스턴스 생성
-                            PoopList.append(Poop(PoopImage, screen))
+                        for i in range(entity.PoopCount):      # 난이도 만큼 인스턴스 생성
+                            entity.PoopList.append(Poop(entity.PoopImage, screen))
                     else:
-                        for i in range(PoopCount):
-                            if i <= PoopCount / 3:
-                                PoopList.append(Poop(PoopImage[0], screen))
-                            elif PoopCount / 3 < i <= PoopCount / 3 * 2:
-                                PoopList.append(Poop(PoopImage[1], screen))
-                            elif PoopCount / 3 * 2 < i <= PoopCount:
-                                PoopList.append(Poop(PoopImage[2], screen))
+                        for i in range(entity.PoopCount):
+                            if i <= entity.PoopCount / 3:
+                                entity.PoopList.append(Poop(entity.PoopImage[0], screen))
+                            elif entity.PoopCount / 3 < i <= entity.PoopCount / 3 * 2:
+                                entity.PoopList.append(Poop(entity.PoopImage[1], screen))
+                            elif entity.PoopCount / 3 * 2 < i <= entity.PoopCount:
+                                entity.PoopList.append(Poop(entity.PoopImage[2], screen))
 
-                    for i in range(ItemCount):      # 난이도 만큼 인스턴스 생성
-                        ItemList.append(AidKit(asset.item["aidkit"], screen))
+                    for i in range(entity.ItemCount):      # 난이도 만큼 인스턴스 생성
+                        entity.ItemList.append(AidKit(asset.item["aidkit"], screen))
 
                     pygame.display.update()
                 elif event.key == pygame.K_LCTRL:
@@ -225,10 +224,10 @@ while running:
                     isGameOver = False
                     player.reset()
                     player2.reset()
-                    PoopCount = 0
-                    PoopList = []
-                    ItemCount = 0
-                    ItemList = []
+                    entity.PoopCount = 0
+                    entity.PoopList = []
+                    entity.ItemCount = 0
+                    entity.ItemList = []
                     pygame.display.update()
 
     # title 구역
@@ -310,48 +309,48 @@ while running:
         player.draw()       # 출력
 
         isDeleted = False
-        for index, ItemInst in enumerate(ItemList):
+        for index, ItemInst in enumerate(entity.ItemList):
             ItemInst.move(dt)
             ItemInst.setRect()
             if player.rect.colliderect(ItemInst.rect) and not player.isDie():
                 player.giveHeal(ItemInst.heal)
-                del ItemList[index]
+                del entity.ItemList[index]
                 isDeleted = True
             if settings["player_type"].main == "Multi":
                 if player2.rect.colliderect(ItemInst.rect) and not player2.isDie():
                     player2.giveHeal(ItemInst.heal)
                     if not isDeleted:
-                        del ItemList[index]
+                        del entity.ItemList[index]
                         isDeleted = True
 
             if isDeleted:
                 continue
 
             if not ItemInst.isOnLand(dt):
-                del ItemList[index]
+                del entity.ItemList[index]
             ItemInst.draw()
             isDeleted = False
 
         isDeleted = False
         delObj = []
-        for index, PoopInst in enumerate(PoopList):
+        for index, PoopInst in enumerate(entity.PoopList):
             PoopInst.move(dt)
             PoopInst.setRect()
             if player.rect.colliderect(PoopInst.rect) and not player.isDie():  # 충돌 감지
                 player.giveDamage(PoopInst.damage)
-                delObj.append(PoopList[index])
-                del PoopList[index]
+                delObj.append(entity.PoopList[index])
+                del entity.PoopList[index]
                 isDeleted = True
             if settings["player_type"].main == "Multi" and not player2.isDie():
                 if player2.rect.colliderect(PoopInst.rect):
                     player2.giveDamage(PoopInst.damage)
                     if not isDeleted:
-                        delObj.append(PoopList[index])
-                        del PoopList[index]
+                        delObj.append(entity.PoopList[index])
+                        del entity.PoopList[index]
                         isDeleted = True
             if PoopInst.isDestroy():    # 소멸 감지
-                delObj.append(PoopList[index])
-                del PoopList[index]
+                delObj.append(entity.PoopList[index])
+                del entity.PoopList[index]
                 if settings["score_type"].main == "Difficulty":
                     if not player.isDie():
                         player.score += 1 / settings["difficulty"].main
@@ -379,12 +378,12 @@ while running:
         if settings["player_type"].main == "Multi":
             isGameOver = player.isDie() and player2.isDie()
 
-        for PoopInst in PoopList:
+        for PoopInst in entity.PoopList:
             if isGameOver:
                 PoopInst.reset()
             PoopInst.draw() # 출력
         
-        for ItemInst in ItemList:
+        for ItemInst in entity.ItemList:
             if isGameOver:
                 ItemInst.reset()
             ItemInst.draw() # 출력
@@ -393,21 +392,21 @@ while running:
             area = areaList[4]  # 게임 오버 화면으로 이동
             pygame.display.update()
 
-        if len(ItemList) != ItemCount: 
-            for i in range(ItemCount - len(ItemList)):
-                ItemList.append(AidKit(asset.item["aidkit"], screen))
+        if len(entity.ItemList) != entity.ItemCount: 
+            for i in range(entity.ItemCount - len(entity.ItemList)):
+                entity.ItemList.append(AidKit(asset.item["aidkit"], screen))
 
-        if len(PoopList) != PoopCount:
-            for i in range(PoopCount - len(PoopList)):  
+        if len(entity.PoopList) != entity.PoopCount:
+            for i in range(entity.PoopCount - len(entity.PoopList)):  
                 if settings["mode"].main != "MIXED":
-                    PoopList.append(Poop(PoopImage, screen))
+                    entity.PoopList.append(Poop(entity.PoopImage, screen))
                 else:
-                    if delObj[i].image_str == PoopImage[0]:
-                        PoopList.append(Poop(PoopImage[0], screen))
-                    elif delObj[i].image_str == PoopImage[1]:
-                        PoopList.append(Poop(PoopImage[1], screen))
-                    elif delObj[i].image_str == PoopImage[2]:
-                        PoopList.append(Poop(PoopImage[2], screen))
+                    if delObj[i].image_str == entity.PoopImage[0]:
+                        entity.PoopList.append(Poop(entity.PoopImage[0], screen))
+                    elif delObj[i].image_str == entity.PoopImage[1]:
+                        entity.PoopList.append(Poop(entity.PoopImage[1], screen))
+                    elif delObj[i].image_str == entity.PoopImage[2]:
+                        entity.PoopList.append(Poop(entity.PoopImage[2], screen))
         
         game_font = pygame.font.Font(asset.font["NeoDunggeunmo"], 30)
         scoreboard = game_font.render("P1: Score: " + str(round(player.score, 2)), True, (255, 255, 255))   # 점수를 화면에 렌더링
