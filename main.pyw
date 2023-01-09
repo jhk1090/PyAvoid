@@ -1,14 +1,15 @@
 import pygame
-import random
 import os
 import sys
-import res
+import asset
 
 from pygame.locals import *
 
 # 초기화
 pygame.init()
 pygame.mixer.init()
+from settings import settings, settings_index
+from entity import *
 
 # 라이브러리
 this_path = os.path.dirname(sys.argv[0])
@@ -17,307 +18,18 @@ this_path = os.path.dirname(sys.argv[0])
 screen_width = 480
 screen_height = 640
 screen = pygame.display.set_mode((screen_width, screen_height))
-pygame.display.set_icon(pygame.image.load(res.entity["poop"]))
+pygame.display.set_icon(pygame.image.load(asset.entity["poop"]))
 pygame.display.set_caption("Avoid!")
 clock = pygame.time.Clock()
 
 # 기본 배경
-background = pygame.image.load(res.background["default"][0])
-setting_font = pygame.font.Font(res.font["NeoDunggeunmo"], 22)
-
-class s_root():
-    def __init__(self):
-        self.main = None
-        self.selection:list = None
-        self.color = (255, 255, 255)
-        self.text_render = setting_font.render(str(self.main), True, self.color)
-        self.selected = False
-
-    def reload(self, main=None, selection=None, text_render=None):
-        self.main = main
-        self.selection = selection
-        self.text_render = text_render
-
-    def isSelect(self, select=None):
-        if select != None:
-            self.selected = select
-        if self.selected:
-            self.color = (86, 255, 86)
-        else:
-            self.color = (255, 255, 255)
-        self.text_render = setting_font.render(str(self.main), True, self.color)
-
-# 기본 설정
-class s_mode(s_root):
-    def __init__(self):
-        super().__init__()
-        self.main = "Normal"                 # 모드(추가 예정)
-        self.selection = ["Normal", "Poison", "Radiation", "MIXED"]
-        self.text_render = setting_font.render(str(self.main), True, self.color)
-
-class s_difficulty(s_root):
-    def __init__(self):
-        super().__init__()
-        self.main = 2              # 난이도 
-        self.selection = [2, 3, 4, 1]
-        self.text_render = setting_font.render(str(self.main), True, self.color)
-
-class s_player_type(s_root):
-    def __init__(self):
-        super().__init__()
-        self.main = "Single"      # 플레이어 모드
-        self.selection = ["Single", "Multi"]
-        self.text_render = setting_font.render(str(self.main), True, self.color)
-
-class s_score_type(s_root):
-    def __init__(self):
-        super().__init__()
-        self.main = "Difficulty"   # 점수 환산 방식
-        self.selection = ["Difficulty", "Count"]
-        self.text_render = setting_font.render(str(self.main), True, self.color)
-
-class s_use_sound(s_root):
-    def __init__(self):
-        super().__init__()
-        self.main = True            # 브금 여부
-        self.selection = [True, False]
-        self.text_render = setting_font.render(str(self.main), True, self.color)
-
-class s_theme(s_root):
-    def __init__(self):
-        super().__init__()
-        self.main = "LIGHT"              # 테마 
-        self.selection = ["LIGHT", "DARK"]
-        self.text_render = setting_font.render(str(self.main), True, self.color)
-
-class s_solid_background(s_root):
-    def __init__(self):
-        super().__init__()
-        self.main = False    # 단색 배경 사용
-        self.selection = [False, True]
-        self.text_render = setting_font.render(str(self.main), True, self.color)
-
-class s_show_fps(s_root):
-    def __init__(self):
-        super().__init__()
-        self.main = True             # fps 표시 여부
-        self.selection = [True, False]
-        self.text_render = setting_font.render(str(self.main), True, self.color)
-
-class s_fps_set(s_root):
-    def __init__(self):
-        super().__init__()
-        self.main = 144                # fps 설정
-        self.selection = [144, 10, 20, 30, 60]
-        self.text_render = setting_font.render(str(self.main), True, self.color)
-
-class s_language(s_root):
-    def __init__(self):
-        super().__init__()
-        self.main = "En-US"
-        self.selection = ["En-US", "Ko-KR"]
-        self.text_render = setting_font.render(str(self.main), True, self.color)
-
-settings_index: int  = 0
-settings: dict = {
-    # in-game
-    "mode": s_mode(),
-    "difficulty": s_difficulty(),
-    "player_type": s_player_type(),
-    "score_type": s_score_type(),
-    "background_theme": s_theme(),
-    "background_solid": s_solid_background(),
-    # preference
-    "use_sound": s_use_sound(),
-    "fps_show": s_show_fps(),
-    "fps_set": s_fps_set(),
-    "language": s_language()
-}
-
-# 엔티티
-class Entity():
-    def __init__(self, image: str, scale: float):
-        self.image:pygame.Surface = pygame.image.load(image)
-        self.image_str:str = image
-        self.before_size: list = self.image.get_rect().size
-        self.scale: tuple(float, float) = (self.before_size[0] * scale, self.before_size[1] * scale)
-        self.image = pygame.transform.scale(self.image, self.scale)
-        self.image_o = pygame.transform.scale(self.image, self.scale)
-        self.size:list = self.image.get_rect().size          
-        self.width:float = self.size[0]                     
-        self.height:float = self.size[1]
-        self.x:float = 0
-        self.y:float = 0                                         
-        self.speed:float = 0                                     
-        self.rect:Rect = None
-
-    # 충돌 감지 비교 요소
-    def setRect(self):
-        self.rect = self.image.get_rect()
-        self.rect.left = self.x
-        self.rect.top = self.y
-
-    # 그리기
-    def draw(self):
-        screen.blit(self.image, (self.x, self.y))
-
-    # 숨기기
-    def hideEntity(self):
-        self.image = pygame.image.load(res.empty_image)
-
-    # 보이기
-    def showEntity(self):
-        self.image = self.image_o
-
-# 플레이어
-class Player(Entity):
-    def __init__(self, image):
-        super().__init__(image, 0.6)
-        self.x = (screen_width / 2) - (self.width / 2)         
-        self.y = float(screen_height) - self.height             # 플레이어 y좌표
-        self.to_x = 0                                       # 플레이어 이동할 x좌표
-        self.speed = 0.2                                    # 플레이어 속도
-        self.score = 0                                      # 플레이어 점수
-        self.health = 100                                   # 플레이어 체력
-    # 화면 밖 나가기 제한
-    def limitPos(self):
-        if self.x < 0:
-            self.x = 0
-        elif self.x > screen_width - self.width:
-            self.x = screen_width - self.width
-    
-    # 이동
-    def move(self, frame):
-        self.x += frame * self.to_x
-
-    # 체력 피해
-    def giveDamage(self, damage):
-        self.health -= damage
-        game_font = pygame.font.Font(res.font["NeoDunggeunmo"], 20)
-        gotDamage = game_font.render("-" + str(damage), True, (255, 0, 0))
-        screen.blit(gotDamage, (self.x + 15, self.y - 15))
-        if self.health <= 0:
-            self.health = 0
-    
-    # 체력 획득
-    def giveHeal(self, health):
-        self.health += health
-        game_font = pygame.font.Font(res.font["NeoDunggeunmo"], 20)
-        gotHeal = game_font.render("+" + str(health), True, (0, 255, 0))
-        screen.blit(gotHeal, (self.x + 15, self.y - 15))
-        if self.health >= 100:
-            self.health = 100
-    
-    # 초기화
-    def reset(self):
-        self.x = (screen_width / 2) - (self.width / 2)
-        self.y = screen_height - self.height
-        self.speed = 0.3
-        self.score = 0   
-        self.health = 100
-        self.to_x = 0          
-
-    # 피해 레벨 (0 ~ 3)
-    def checkLevel(self):
-        if 70 < self.health:
-            return 0
-        elif 50 < self.health <= 70:
-            return 1
-        elif 20 < self.health <= 50:
-            return 2
-        elif 0 < self.health <= 20:
-            return 3
-        else:
-            return 4
-
-    # 죽었는지 확인
-    def isDie(self):
-        if self.checkLevel() == 4:
-            return True
-        else:
-            return False
-    
-# 똥
-class Poop(Entity):
-    def __init__(self, image):
-        super().__init__(image, 0.8)
-        self.x = random.randint(0, screen_width - int(round(self.width)))
-        self.y = 0 - self.height
-        self.speed = (random.randint(1, 4)) / 10
-        self.rect = None
-        if settings["mode"].main == "MIXED":
-            if self.image_str == PoopImage[0]:
-                self.damage = PoopDamage[0]
-            elif self.image_str == PoopImage[1]:
-                self.damage = PoopDamage[1]
-            elif self.image_str == PoopImage[2]:
-                self.damage = PoopDamage[2]
-        else:
-            self.damage = PoopDamage
-
-    # 소멸되었을 때
-    def isDestroy(self):
-        return self.y > screen_height
-
-    # 이동
-    def move(self, frame):
-        self.y += frame * self.speed
-
-    # 초기화
-    def reset(self):
-        self.y = 0 - self.height
-
-# 아이템
-class Item(Entity):
-    def __init__(self, image):
-        super().__init__(image, 0.8)
-        self.isLand:bool = False
-        self.onLandTime:int = 0
-        self.nowTime:int = 0
-        self.destroyTime:int = 10
-
-    # 초기화
-    def reset(self):
-        self.y = 0 - self.height
-        self.isLand = False
-
-    # 랜딩했을 때, 소멸되었는가
-    def isOnLand(self, frame):
-        if self.isLand:
-            if self.onLandTime == 0:
-                self.onLandTime = pygame.time.get_ticks()
-                return True
-
-            elif self.onLandTime != 0:
-                self.nowTime = pygame.time.get_ticks()
-                return self.isDestroy(frame)
-        return True
-
-    # 소멸 조건
-    def isDestroy(self, frame):
-        return self.nowTime - self.onLandTime < self.destroyTime * frame
-
-    # 이동
-    def move(self, frame):
-        if not self.isLand:
-            self.y += frame * self.speed
-            if self.y >= screen_height - self.height:
-                self.y = screen_height - self.height
-                self.isLand = True
-
-# 긴급 킷
-class AidKit(Item):
-    def __init__(self, image):
-        super().__init__(image)
-        self.x = random.randint(0, screen_width - int(round(self.width)))
-        self.y = 0 - self.height
-        self.speed = (random.randint(1, 4)) / 10
-        self.heal = 5
+background = pygame.image.load(asset.background["default"][0])
+setting_font = pygame.font.Font(asset.font["NeoDunggeunmo"], 22)
 
 # 음악 재생
 class Sound:
     def __init__(self):
-        self.soundtrack = res.sound["rollin_at_5"]
+        self.soundtrack = asset.sound["rollin_at_5"]
         self.isStart = False
         self.isToned = False
         self.theme = settings["background_theme"].main
@@ -326,11 +38,11 @@ class Sound:
     def setMusicTheme(self):
         if settings["background_theme"].main == "LIGHT":
             self.theme = settings["background_theme"].main
-            self.soundtrack = res.sound["rollin_at_5"]
+            self.soundtrack = asset.sound["rollin_at_5"]
             self.load = pygame.mixer.music.load(self.soundtrack[0])
         elif settings["background_theme"].main == "DARK":
             self.theme = settings["background_theme"].main
-            self.soundtrack = res.sound["raving_energy"]
+            self.soundtrack = asset.sound["raving_energy"]
             self.load = pygame.mixer.music.load(self.soundtrack[0])
 
     def play(self):
@@ -352,23 +64,16 @@ class Sound:
         self.isStart = False
         self.isToned = False
 
-PoopList = []   # 똥 인스턴스 생성 목록
-PoopCount = 0   # 똥 갯수
-PoopImage = res.entity["poop"]
-PoopDamage = 30
-ItemList = []   # 아이템 인스턴스 생성 목록
-ItemCount = 0   # 아이템 갯수
-
 def loadBackground(backType, filter=None) -> list:
     returnValue = []
     if settings["background_theme"].main == "LIGHT":
         if settings["background_solid"].main:
-            returnValue.append(pygame.image.load(res.background["solid"][0]))
+            returnValue.append(pygame.image.load(asset.background["solid"][0]))
         else:
             returnValue.append(pygame.image.load(backType[0]))
     elif settings["background_theme"].main == "DARK":
         if settings["background_solid"].main:
-            returnValue.append(pygame.image.load(res.background["solid"][1]))
+            returnValue.append(pygame.image.load(asset.background["solid"][1]))
         else:
             returnValue.append(pygame.image.load(backType[1]))
 
@@ -388,8 +93,8 @@ areaList = ["title", "setting", "info", "start", "end"]    # 구역 목록
 area = areaList[0]                      # 현재 구역
 
 # 인스턴스
-player = Player(res.entity["sprite"])                       # 플레이어 메인 인스턴스
-player2 = Player(res.entity["sprite2"])
+player = Player(asset.entity["sprite"], screen)                       # 플레이어 메인 인스턴스
+player2 = Player(asset.entity["sprite2"], screen)
 sound = Sound()                         # 배경 음악
 
 settings["mode"].isSelect(True)
@@ -399,7 +104,7 @@ running = True
 while running:
     dt = clock.tick(settings["fps_set"].main)                                                        # fps 설정
     fps = clock.get_fps()                                                           # fps 구하기
-    fontfps = pygame.font.Font(res.font["NeoDunggeunmo"], 20)
+    fontfps = pygame.font.Font(asset.font["NeoDunggeunmo"], 20)
     if (settings["fps_show"]).main:
         fpscounter = fontfps.render(f"{int(fps)}fps", True, (255, 255, 255))        # fps 화면에 렌더링
     else:
@@ -420,32 +125,32 @@ while running:
                     ItemCount = settings["difficulty"].main
                     
                     if settings["mode"].main == "Normal":
-                        PoopImage = res.entity["poop"]
+                        PoopImage = asset.entity["poop"]
                         PoopDamage = 30
                     elif settings["mode"].main == "Poison":
-                        PoopImage = res.entity["poop2"]
+                        PoopImage = asset.entity["poop2"]
                         PoopDamage = 70
                     elif settings["mode"].main == "Radiation":
-                        PoopImage = res.entity["poop3"]
+                        PoopImage = asset.entity["poop3"]
                         PoopDamage = 100
                     elif settings["mode"].main == "MIXED":
-                        PoopImage = [res.entity["poop"], res.entity["poop2"], res.entity["poop3"]]
+                        PoopImage = [asset.entity["poop"], asset.entity["poop2"], asset.entity["poop3"]]
                         PoopDamage = [30, 70, 100]
 
                     if settings["mode"].main != "MIXED":
                         for i in range(PoopCount):      # 난이도 만큼 인스턴스 생성
-                            PoopList.append(Poop(PoopImage))
+                            PoopList.append(Poop(PoopImage, screen))
                     else:
                         for i in range(PoopCount):
                             if i <= PoopCount / 3:
-                                PoopList.append(Poop(PoopImage[0]))
+                                PoopList.append(Poop(PoopImage[0], screen))
                             elif PoopCount / 3 < i <= PoopCount / 3 * 2:
-                                PoopList.append(Poop(PoopImage[1]))
+                                PoopList.append(Poop(PoopImage[1], screen))
                             elif PoopCount / 3 * 2 < i <= PoopCount:
-                                PoopList.append(Poop(PoopImage[2]))
+                                PoopList.append(Poop(PoopImage[2], screen))
 
                     for i in range(ItemCount):      # 난이도 만큼 인스턴스 생성
-                        ItemList.append(AidKit(res.item["aidkit"]))
+                        ItemList.append(AidKit(asset.item["aidkit"], screen))
 
                     pygame.display.update()
                 elif event.key == pygame.K_LCTRL:
@@ -529,7 +234,7 @@ while running:
     # title 구역
     if area == areaList[0]:
         sound.setMusicTheme()
-        background, background_filter = loadBackground(res.background["darken"], res.background["filter"]["on_title"])  # 블러된 배경화면 로딩
+        background, background_filter = loadBackground(asset.background["darken"], asset.background["filter"]["on_title"])  # 블러된 배경화면 로딩
 
         screen.blit(background, (0, 0))
         screen.blit(background_filter, (0, 0))
@@ -540,8 +245,8 @@ while running:
         for i in settings.keys():
             settings[i].isSelect()
 
-        background, background_filter = loadBackground(res.background["darken"], res.background["filter"]["on_setting"])
-        game_font = pygame.font.Font(res.font["NeoDunggeunmo"], 17)
+        background, background_filter = loadBackground(asset.background["darken"], asset.background["filter"]["on_setting"])
+        game_font = pygame.font.Font(asset.font["NeoDunggeunmo"], 17)
 
         screen.blit(background, (0, 0))
         screen.blit(background_filter, (0, 0))
@@ -550,16 +255,16 @@ while running:
         screen.blit(settings["difficulty"].text_render, (screen_width / 4 + 45, screen_height / 2 + 10))
         screen.blit(settings["player_type"].text_render, (screen_width / 4 + 45, screen_height / 2 + 30))
         screen.blit(settings["score_type"].text_render, (screen_width / 4 + 45, screen_height / 2 + 50))
-        screen.blit(settings["use_sound"].text_render, (screen_width / 2 + 150, screen_height / 2 + -15))
         screen.blit(settings["background_theme"].text_render, (screen_width / 4 + 5, screen_height / 2 + 100))
         screen.blit(settings["background_solid"].text_render, (screen_width / 4 + 5, screen_height / 2 + 120))
+        screen.blit(settings["use_sound"].text_render, (screen_width / 2 + 150, screen_height / 2 + -15))
         screen.blit(settings["fps_show"].text_render, (screen_width / 2 + 150, screen_height / 2 + 5))
         screen.blit(settings["fps_set"].text_render, (screen_width / 2 + 150, screen_height / 2 + 25))
         screen.blit(settings["language"].text_render, (screen_width / 2 + 150, screen_height / 2 + 45))
 
     # info 구역
     elif area == areaList[2]:
-        background, background_filter = loadBackground(res.background["darken"], res.background["filter"]["on_info"])
+        background, background_filter = loadBackground(asset.background["darken"], asset.background["filter"]["on_info"])
         screen.blit(background, (0, 0))
         screen.blit(background_filter, (0, 0))
         screen.blit(fpscounter, (screen_width - 65, 5))
@@ -569,7 +274,7 @@ while running:
         if not sound.isStart:
             sound.play()
         
-        background = loadBackground(res.background["default"])[0]       # 배경화면 로딩
+        background = loadBackground(asset.background["default"])[0]       # 배경화면 로딩
         screen.blit(background, (0, 0))
 
         if settings["player_type"].main == "Single":
@@ -690,21 +395,21 @@ while running:
 
         if len(ItemList) != ItemCount: 
             for i in range(ItemCount - len(ItemList)):
-                ItemList.append(AidKit(res.item["aidkit"]))
+                ItemList.append(AidKit(asset.item["aidkit"], screen))
 
         if len(PoopList) != PoopCount:
             for i in range(PoopCount - len(PoopList)):  
                 if settings["mode"].main != "MIXED":
-                    PoopList.append(Poop(PoopImage))
+                    PoopList.append(Poop(PoopImage, screen))
                 else:
                     if delObj[i].image_str == PoopImage[0]:
-                        PoopList.append(Poop(PoopImage[0]))
+                        PoopList.append(Poop(PoopImage[0], screen))
                     elif delObj[i].image_str == PoopImage[1]:
-                        PoopList.append(Poop(PoopImage[1]))
+                        PoopList.append(Poop(PoopImage[1], screen))
                     elif delObj[i].image_str == PoopImage[2]:
-                        PoopList.append(Poop(PoopImage[2]))
+                        PoopList.append(Poop(PoopImage[2], screen))
         
-        game_font = pygame.font.Font(res.font["NeoDunggeunmo"], 30)
+        game_font = pygame.font.Font(asset.font["NeoDunggeunmo"], 30)
         scoreboard = game_font.render("P1: Score: " + str(round(player.score, 2)), True, (255, 255, 255))   # 점수를 화면에 렌더링
         screen.blit(scoreboard, (10, 10))
         healthboard = game_font.render("P1: HP: " + str(player.health), True, (255, 255, 255))   # 점수를 화면에 렌더링
@@ -720,14 +425,14 @@ while running:
     elif area == areaList[4]:
         sound.stop()
         sound.reset()
-        background, background_filter = loadBackground(res.background["darken"], res.background["filter"]["on_end"])       # 블러 배경화면 로딩
+        background, background_filter = loadBackground(asset.background["darken"], asset.background["filter"]["on_end"])       # 블러 배경화면 로딩
         screen.blit(background, (0, 0))
         screen.blit(background_filter, (0, 0))
         screen.blit(fpscounter, (screen_width - 65, 5))
 
         player.score = round(player.score, 2)
         player2.score = round(player2.score, 2)
-        game_font = pygame.font.Font(res.font["NeoDunggeunmo"], 30)
+        game_font = pygame.font.Font(asset.font["NeoDunggeunmo"], 30)
         finalScore = game_font.render("P1: Score: " + str(player.score), True, (255, 255, 255))   # 최종 점수 렌더링
         screen.blit(finalScore, (screen_width / 3, screen_height / 2 + 45))
         if settings["player_type"].main == "Multi":
