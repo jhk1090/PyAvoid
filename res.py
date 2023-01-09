@@ -39,7 +39,7 @@ font = {
 }
 
 sound = {
-    "raving_energe": [f"{this_path}\\resource\\sound\\Raving_Energy.mp3",
+    "raving_energy": [f"{this_path}\\resource\\sound\\Raving_Energy.mp3",
                       f"{this_path}\\resource\\sound\\Raving_Energy_(faster).mp3",],
     "rollin_at_5": [f"{this_path}\\resource\\sound\\Rollin_at_5.mp3",
                     f"{this_path}\\resource\\sound\\Rollin_at_5_(electronic).mp3",]

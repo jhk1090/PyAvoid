@@ -38,7 +38,9 @@ class s_root():
         self.selection = selection
         self.text_render = text_render
 
-    def isSelect(self):
+    def isSelect(self, select=None):
+        if select != None:
+            self.selected = select
         if self.selected:
             self.color = (86, 255, 86)
         else:
@@ -106,7 +108,7 @@ class s_fps_set(s_root):
     def __init__(self):
         super().__init__()
         self.main = 144                # fps 설정
-        self.selection = [30, 60, 144, 10, 20]
+        self.selection = [144, 10, 20, 30, 60]
         self.text_render = setting_font.render(str(self.main), True, self.color)
 
 class s_language(s_root):
@@ -116,14 +118,21 @@ class s_language(s_root):
         self.selection = ["En-US", "Ko-KR"]
         self.text_render = setting_font.render(str(self.main), True, self.color)
 
-selectS_s = [
+settings_index: int  = 0
+settings: dict = {
     # in-game
-    s_mode(), s_difficulty(), s_player_type(), s_score_type(),
+    "mode": s_mode(),
+    "difficulty": s_difficulty(),
+    "player_type": s_player_type(),
+    "score_type": s_score_type(),
+    "background_theme": s_theme(),
+    "background_solid": s_solid_background(),
     # preference
-    s_use_sound(), s_theme(), s_solid_background(), s_show_fps(), s_fps_set(), s_language()
-]
-
-selectS = 0
+    "use_sound": s_use_sound(),
+    "fps_show": s_show_fps(),
+    "fps_set": s_fps_set(),
+    "language": s_language()
+}
 
 # 엔티티
 class Entity():
@@ -236,7 +245,7 @@ class Poop(Entity):
         self.y = 0 - self.height
         self.speed = (random.randint(1, 4)) / 10
         self.rect = None
-        if selectS_s[0].main == "MIXED":
+        if settings["mode"].main == "MIXED":
             if self.image_str == PoopImage[0]:
                 self.damage = PoopDamage[0]
             elif self.image_str == PoopImage[1]:
@@ -311,26 +320,26 @@ class Sound:
         self.soundtrack = res.sound["rollin_at_5"]
         self.isStart = False
         self.isToned = False
-        self.theme = selectS_s[5].main
+        self.theme = settings["background_theme"].main
         self.load = pygame.mixer.music.load(self.soundtrack[0])
 
     def setMusicTheme(self):
-        if selectS_s[5].main == "LIGHT":
-            self.theme = selectS_s[5].main
+        if settings["background_theme"].main == "LIGHT":
+            self.theme = settings["background_theme"].main
             self.soundtrack = res.sound["rollin_at_5"]
             self.load = pygame.mixer.music.load(self.soundtrack[0])
-        elif selectS_s[5].main == "DARK":
-            self.theme = selectS_s[5].main
+        elif settings["background_theme"].main == "DARK":
+            self.theme = settings["background_theme"].main
             self.soundtrack = res.sound["raving_energy"]
             self.load = pygame.mixer.music.load(self.soundtrack[0])
 
     def play(self):
-        if selectS_s[4].main:
+        if settings["use_sound"].main:
             pygame.mixer.music.play(1000, 0.0)
             self.isStart = True
 
     def stop(self):
-        if selectS_s[4].main:
+        if settings["use_sound"].main:
             pygame.mixer.music.stop()
             self.isStart = False
 
@@ -352,21 +361,21 @@ ItemCount = 0   # 아이템 갯수
 
 def loadBackground(backType, filter=None) -> list:
     returnValue = []
-    if selectS_s[5].main == "LIGHT":
-        if selectS_s[6].main:
+    if settings["background_theme"].main == "LIGHT":
+        if settings["background_solid"].main:
             returnValue.append(pygame.image.load(res.background["solid"][0]))
         else:
             returnValue.append(pygame.image.load(backType[0]))
-    elif selectS_s[5].main == "DARK":
-        if selectS_s[6].main:
+    elif settings["background_theme"].main == "DARK":
+        if settings["background_solid"].main:
             returnValue.append(pygame.image.load(res.background["solid"][1]))
         else:
             returnValue.append(pygame.image.load(backType[1]))
 
     if filter != None:
-        if selectS_s[9].main == "En-US":
+        if settings["language"].main == "En-US":
             returnValue.append(pygame.image.load(filter[0]))
-        elif selectS_s[9].main == "Ko-KR":
+        elif settings["language"].main == "Ko-KR":
             returnValue.append(pygame.image.load(filter[1]))
     
     return tuple(returnValue)
@@ -383,16 +392,15 @@ player = Player(res.entity["sprite"])                       # 플레이어 메�
 player2 = Player(res.entity["sprite2"])
 sound = Sound()                         # 배경 음악
 
-selectS_s[0].selected = True
-selectS_s[0].isSelect()
+settings["mode"].isSelect(True)
 
 # 이벤트 루프
 running = True
 while running:
-    dt = clock.tick(selectS_s[8].main)                                                        # fps 설정
+    dt = clock.tick(settings["fps_set"].main)                                                        # fps 설정
     fps = clock.get_fps()                                                           # fps 구하기
     fontfps = pygame.font.Font(res.font["NeoDunggeunmo"], 20)
-    if (selectS_s[7]).main:
+    if (settings["fps_show"]).main:
         fpscounter = fontfps.render(f"{int(fps)}fps", True, (255, 255, 255))        # fps 화면에 렌더링
     else:
         fpscounter = fontfps.render("", True, (255, 255, 255))
@@ -408,23 +416,23 @@ while running:
             if event.type == pygame.KEYDOWN:    # 키를 눌렀을때
                 if event.key == pygame.K_SPACE:
                     area = areaList[3]
-                    PoopCount = selectS_s[1].main * 3
-                    ItemCount = selectS_s[1].main
+                    PoopCount = settings["difficulty"].main * 3
+                    ItemCount = settings["difficulty"].main
                     
-                    if selectS_s[0].main == "Normal":
+                    if settings["mode"].main == "Normal":
                         PoopImage = res.entity["poop"]
                         PoopDamage = 30
-                    elif selectS_s[0].main == "Poison":
+                    elif settings["mode"].main == "Poison":
                         PoopImage = res.entity["poop2"]
                         PoopDamage = 70
-                    elif selectS_s[0].main == "Radiation":
+                    elif settings["mode"].main == "Radiation":
                         PoopImage = res.entity["poop3"]
                         PoopDamage = 100
-                    elif selectS_s[0].main == "MIXED":
+                    elif settings["mode"].main == "MIXED":
                         PoopImage = [res.entity["poop"], res.entity["poop2"], res.entity["poop3"]]
                         PoopDamage = [30, 70, 100]
 
-                    if selectS_s[0].main != "MIXED":
+                    if settings["mode"].main != "MIXED":
                         for i in range(PoopCount):      # 난이도 만큼 인스턴스 생성
                             PoopList.append(Poop(PoopImage))
                     else:
@@ -452,35 +460,28 @@ while running:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LCTRL:
                     area = areaList[0]
-                    selectS = 0
-                    for index, i in enumerate(selectS_s):
-                        selectS_s[index].selected = False
-                        selectS_s[index].isSelect()
-
-                    selectS_s[0].selected = True
-                    selectS_s[0].isSelect()
+                    settings_index = 0
+                    for i in settings.keys():
+                        settings[i].isSelect(False)
+                    settings["mode"].isSelect(True)
                     pygame.display.update()
 
                 elif event.key == pygame.K_TAB:
-                    selectS += 1
-                    if selectS > len(selectS_s) - 1:
-                        selectS = 0
-                        selectS_s[selectS].selected = True
-                        selectS_s[selectS].isSelect()
-                        selectS_s[len(selectS_s) - 1].selected = False
-                        selectS_s[len(selectS_s) - 1].isSelect()
+                    settings_index += 1
+                    if settings_index > len(settings.keys()) - 1:
+                        settings_index = 0
+                        settings[list(settings.keys())[settings_index]].isSelect(True)
+                        settings[list(settings.keys())[len(settings.keys()) - 1]].isSelect(False)
                     else:
-                        selectS_s[selectS].selected = True
-                        selectS_s[selectS].isSelect()
-                        selectS_s[selectS - 1].selected = False
-                        selectS_s[selectS - 1].isSelect()
+                        settings[list(settings.keys())[settings_index]].isSelect(True)
+                        settings[list(settings.keys())[settings_index - 1]].isSelect(False)
 
                     # 선택 커서 구현 필요
                 elif event.key == pygame.K_LALT:
-                    selectS_s[selectS].main = selectS_s[selectS].selection[1]
-                    to_push_back = selectS_s[selectS].selection[0]
-                    selectS_s[selectS].selection.append(to_push_back)
-                    del selectS_s[selectS].selection[0]
+                    settings[list(settings.keys())[settings_index]].main = settings[list(settings.keys())[settings_index]].selection[1]
+                    push_back = settings[list(settings.keys())[settings_index]].selection[0]
+                    settings[list(settings.keys())[settings_index]].selection.append(push_back)
+                    del settings[list(settings.keys())[settings_index]].selection[0]
                     break
 
         # 만약 구역이 info 이라면
@@ -536,8 +537,8 @@ while running:
 
     # setting 구역
     elif area == areaList[1]:
-        for index, i in enumerate(selectS_s):
-            selectS_s[index].isSelect()
+        for i in settings.keys():
+            settings[i].isSelect()
 
         background, background_filter = loadBackground(res.background["darken"], res.background["filter"]["on_setting"])
         game_font = pygame.font.Font(res.font["NeoDunggeunmo"], 17)
@@ -545,16 +546,16 @@ while running:
         screen.blit(background, (0, 0))
         screen.blit(background_filter, (0, 0))
         screen.blit(fpscounter, (screen_width - 65, 5))
-        screen.blit(selectS_s[0].text_render, (screen_width / 4 + 45, screen_height / 2 + -15)) # 20 간격
-        screen.blit(selectS_s[1].text_render, (screen_width / 4 + 45, screen_height / 2 + 10))
-        screen.blit(selectS_s[2].text_render, (screen_width / 4 + 45, screen_height / 2 + 30))
-        screen.blit(selectS_s[3].text_render, (screen_width / 4 + 45, screen_height / 2 + 50))
-        screen.blit(selectS_s[4].text_render, (screen_width / 2 + 150, screen_height / 2 + -15))
-        screen.blit(selectS_s[5].text_render, (screen_width / 4 + 5, screen_height / 2 + 100))
-        screen.blit(selectS_s[6].text_render, (screen_width / 4 + 5, screen_height / 2 + 120))
-        screen.blit(selectS_s[7].text_render, (screen_width / 2 + 150, screen_height / 2 + 5))
-        screen.blit(selectS_s[8].text_render, (screen_width / 2 + 150, screen_height / 2 + 25))
-        screen.blit(selectS_s[9].text_render, (screen_width / 2 + 150, screen_height / 2 + 45))
+        screen.blit(settings["mode"].text_render, (screen_width / 4 + 45, screen_height / 2 + -15)) # 20 간격
+        screen.blit(settings["difficulty"].text_render, (screen_width / 4 + 45, screen_height / 2 + 10))
+        screen.blit(settings["player_type"].text_render, (screen_width / 4 + 45, screen_height / 2 + 30))
+        screen.blit(settings["score_type"].text_render, (screen_width / 4 + 45, screen_height / 2 + 50))
+        screen.blit(settings["use_sound"].text_render, (screen_width / 2 + 150, screen_height / 2 + -15))
+        screen.blit(settings["background_theme"].text_render, (screen_width / 4 + 5, screen_height / 2 + 100))
+        screen.blit(settings["background_solid"].text_render, (screen_width / 4 + 5, screen_height / 2 + 120))
+        screen.blit(settings["fps_show"].text_render, (screen_width / 2 + 150, screen_height / 2 + 5))
+        screen.blit(settings["fps_set"].text_render, (screen_width / 2 + 150, screen_height / 2 + 25))
+        screen.blit(settings["language"].text_render, (screen_width / 2 + 150, screen_height / 2 + 45))
 
     # info 구역
     elif area == areaList[2]:
@@ -571,7 +572,7 @@ while running:
         background = loadBackground(res.background["default"])[0]       # 배경화면 로딩
         screen.blit(background, (0, 0))
 
-        if selectS_s[2].main == "Single":
+        if settings["player_type"].main == "Single":
             if player.checkLevel() < 3 and sound.isToned:
                 sound.stop()
                 sound.reset()
@@ -582,7 +583,7 @@ while running:
                 sound.toneUp()
                 sound.play()
 
-        elif selectS_s[2].main == "Multi":
+        elif settings["player_type"].main == "Multi":
             if (player.checkLevel() < 3 or player.isDie()) and (player2.checkLevel() < 3 or player2.isDie()) and sound.isToned:
                 sound.stop()
                 sound.reset()
@@ -611,7 +612,7 @@ while running:
                 player.giveHeal(ItemInst.heal)
                 del ItemList[index]
                 isDeleted = True
-            if selectS_s[2].main == "Multi":
+            if settings["player_type"].main == "Multi":
                 if player2.rect.colliderect(ItemInst.rect) and not player2.isDie():
                     player2.giveHeal(ItemInst.heal)
                     if not isDeleted:
@@ -636,7 +637,7 @@ while running:
                 delObj.append(PoopList[index])
                 del PoopList[index]
                 isDeleted = True
-            if selectS_s[2].main == "Multi" and not player2.isDie():
+            if settings["player_type"].main == "Multi" and not player2.isDie():
                 if player2.rect.colliderect(PoopInst.rect):
                     player2.giveDamage(PoopInst.damage)
                     if not isDeleted:
@@ -646,14 +647,14 @@ while running:
             if PoopInst.isDestroy():    # 소멸 감지
                 delObj.append(PoopList[index])
                 del PoopList[index]
-                if selectS_s[3].main == "Difficulty":
+                if settings["score_type"].main == "Difficulty":
                     if not player.isDie():
-                        player.score += 1 / selectS_s[1].main
-                    if selectS_s[2].main == "Multi" and not player2.isDie():
-                        player2.score += 1 / selectS_s[1].main
+                        player.score += 1 / settings["difficulty"].main
+                    if settings["player_type"].main == "Multi" and not player2.isDie():
+                        player2.score += 1 / settings["difficulty"].main
                 else:
                     player.score += 1
-                    if selectS_s[2].main == "Multi" and not player2.isDie():
+                    if settings["player_type"].main == "Multi" and not player2.isDie():
                         player2.score += 1
 
             isDeleted = False
@@ -663,14 +664,14 @@ while running:
         else:
             player.showEntity()
         
-        if selectS_s[2].main == "Multi":
+        if settings["player_type"].main == "Multi":
             if player2.isDie():
                 player2.hideEntity()
             else:
                 player2.showEntity()
 
         isGameOver = player.isDie()
-        if selectS_s[2].main == "Multi":
+        if settings["player_type"].main == "Multi":
             isGameOver = player.isDie() and player2.isDie()
 
         for PoopInst in PoopList:
@@ -693,7 +694,7 @@ while running:
 
         if len(PoopList) != PoopCount:
             for i in range(PoopCount - len(PoopList)):  
-                if selectS_s[0].main != "MIXED":
+                if settings["mode"].main != "MIXED":
                     PoopList.append(Poop(PoopImage))
                 else:
                     if delObj[i].image_str == PoopImage[0]:
@@ -708,7 +709,7 @@ while running:
         screen.blit(scoreboard, (10, 10))
         healthboard = game_font.render("P1: HP: " + str(player.health), True, (255, 255, 255))   # 점수를 화면에 렌더링
         screen.blit(healthboard, (10, 35))
-        if selectS_s[2].main == "Multi":
+        if settings["player_type"].main == "Multi":
             scoreboard2 = game_font.render("P2: Score: " + str(round(player2.score, 2)), True, (255, 255, 255))   # 점수를 화면에 렌더링
             screen.blit(scoreboard2, (screen_width / 2 + 35, 10))
             healthboard2 = game_font.render("P2: HP: " + str(player2.health), True, (255, 255, 255))   # 점수를 화면에 렌더링
@@ -729,7 +730,7 @@ while running:
         game_font = pygame.font.Font(res.font["NeoDunggeunmo"], 30)
         finalScore = game_font.render("P1: Score: " + str(player.score), True, (255, 255, 255))   # 최종 점수 렌더링
         screen.blit(finalScore, (screen_width / 3, screen_height / 2 + 45))
-        if selectS_s[2].main == "Multi":
+        if settings["player_type"].main == "Multi":
             finalScore2 = game_font.render("P2: Score: " + str(player2.score), True, (255, 255, 255))   # 최종 점수 렌더링
             screen.blit(finalScore2, (screen_width / 3, screen_height / 2 + 80))
     
