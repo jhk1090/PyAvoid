@@ -8,7 +8,8 @@ from pygame.locals import *
 # 초기화
 pygame.init()
 pygame.mixer.init()
-from settings import settings, settings_index
+from settings import settings, settings_next, settings_exit, settings_reset
+import settings as SETTINGS
 from entity import Player, Poop, AidKit
 import entity
 # 라이브러리
@@ -164,28 +165,19 @@ while running:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LCTRL:
                     area = areaList[0]
-                    settings_index = 0
-                    for i in settings.keys():
-                        settings[i].isSelect(False)
-                    settings["mode"].isSelect(True)
+                    settings_exit()
                     pygame.display.update()
 
                 elif event.key == pygame.K_TAB:
-                    settings_index += 1
-                    if settings_index > len(settings.keys()) - 1:
-                        settings_index = 0
-                        settings[list(settings.keys())[settings_index]].isSelect(True)
-                        settings[list(settings.keys())[len(settings.keys()) - 1]].isSelect(False)
-                    else:
-                        settings[list(settings.keys())[settings_index]].isSelect(True)
-                        settings[list(settings.keys())[settings_index - 1]].isSelect(False)
+                    settings_next()
 
                     # 선택 커서 구현 필요
                 elif event.key == pygame.K_LALT:
-                    settings[list(settings.keys())[settings_index]].main = settings[list(settings.keys())[settings_index]].selection[1]
-                    push_back = settings[list(settings.keys())[settings_index]].selection[0]
-                    settings[list(settings.keys())[settings_index]].selection.append(push_back)
-                    del settings[list(settings.keys())[settings_index]].selection[0]
+                    settings[list(settings.keys())[SETTINGS.settings_index]].next()
+                    break
+
+                elif event.key == pygame.K_LSHIFT:
+                    settings_reset()
                     break
 
         # 만약 구역이 info 이라면
@@ -247,19 +239,20 @@ while running:
         background, background_filter = loadBackground(asset.background["darken"], asset.background["filter"]["on_setting"])
         game_font = pygame.font.Font(asset.font["NeoDunggeunmo"], 17)
 
+        lang_config = settings["language"].main
         screen.blit(background, (0, 0))
         screen.blit(background_filter, (0, 0))
         screen.blit(fpscounter, (screen_width - 65, 5))
-        screen.blit(settings["mode"].text_render, (screen_width / 4 + 45, screen_height / 2 + -15)) # 20 간격
-        screen.blit(settings["difficulty"].text_render, (screen_width / 4 + 45, screen_height / 2 + 10))
-        screen.blit(settings["player_type"].text_render, (screen_width / 4 + 45, screen_height / 2 + 30))
-        screen.blit(settings["score_type"].text_render, (screen_width / 4 + 45, screen_height / 2 + 50))
-        screen.blit(settings["background_theme"].text_render, (screen_width / 4 + 5, screen_height / 2 + 100))
-        screen.blit(settings["background_solid"].text_render, (screen_width / 4 + 5, screen_height / 2 + 120))
-        screen.blit(settings["use_sound"].text_render, (screen_width / 2 + 150, screen_height / 2 + -15))
-        screen.blit(settings["fps_show"].text_render, (screen_width / 2 + 150, screen_height / 2 + 5))
-        screen.blit(settings["fps_set"].text_render, (screen_width / 2 + 150, screen_height / 2 + 25))
-        screen.blit(settings["language"].text_render, (screen_width / 2 + 150, screen_height / 2 + 45))
+        screen.blit(settings["mode"].render_update(lang_config), (screen_width / 4 + 45, screen_height / 2 + -15)) # 20 간격
+        screen.blit(settings["difficulty"].render_update(lang_config), (screen_width / 4 + 45, screen_height / 2 + 10))
+        screen.blit(settings["player_type"].render_update(lang_config), (screen_width / 4 + 45, screen_height / 2 + 30))
+        screen.blit(settings["score_type"].render_update(lang_config), (screen_width / 4 + 45, screen_height / 2 + 50))
+        screen.blit(settings["background_theme"].render_update(lang_config), (screen_width / 4 + 5, screen_height / 2 + 100))
+        screen.blit(settings["background_solid"].render_update(lang_config), (screen_width / 4 + 5, screen_height / 2 + 120))
+        screen.blit(settings["use_sound"].render_update(lang_config), (screen_width / 2 + 150, screen_height / 2 + -15))
+        screen.blit(settings["fps_show"].render_update(lang_config), (screen_width / 2 + 150, screen_height / 2 + 5))
+        screen.blit(settings["fps_set"].render_update(lang_config), (screen_width / 2 + 150, screen_height / 2 + 25))
+        screen.blit(settings["language"].render_update(lang_config), (screen_width / 2 + 150, screen_height / 2 + 45))
 
     # info 구역
     elif area == areaList[2]:
