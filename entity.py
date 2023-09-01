@@ -132,7 +132,8 @@ class Poop(Entity):
 
     # 소멸되었을 때
     def isDestroy(self):
-        return self.y > screen_height
+        return self.y >= (screen_height - self.height)
+        # return self.y > screen_height
 
     # 이동
     def move(self, frame):

@@ -49,6 +49,10 @@ class Sound:
     def play(self):
         if settings["use_sound"].main:
             pygame.mixer.music.play(1000, 0.0)
+            if (settings["volume"].main == 0):
+                pygame.mixer.music.set_volume(0)
+            else:    
+                pygame.mixer.music.set_volume(settings["volume"].main / 100)
             self.isStart = True
 
     def stop(self):
@@ -102,6 +106,11 @@ settings["mode"].isSelect(True)
 
 # 이벤트 루프
 running = True
+
+# 왼쪽으로 꾹 누르다가 오른쪽을 누르면 걸림
+playerKeyInit = None # None, "A", "D"
+player2KeyInit = None # None, "LEFT", "RIGHT"
+
 while running:
     dt = clock.tick(settings["fps_set"].main)                                                        # fps 설정
     fps = clock.get_fps()                                                           # fps 구하기
@@ -192,22 +201,38 @@ while running:
             if event.type == pygame.KEYDOWN:    # 키가 눌렸을때
                 if not player.isDie():
                     if event.key == pygame.K_a:            # a는 왼쪽, d는 오른쪽으로 이동
+                        if (playerKeyInit != "A"):
+                            playerKeyInit = "A"
+                            player.to_x = 0
                         player.to_x -= player.speed
                     if event.key == pygame.K_d:
+                        if (playerKeyInit != "D"):
+                            playerKeyInit = "D"
+                            player.to_x = 0
                         player.to_x += player.speed
                 if not player2.isDie():
                     if event.key == pygame.K_LEFT:            # <-는 왼쪽, ->는 오른쪽으로 이동
+                        if (player2KeyInit != "LEFT"):
+                            player2KeyInit = "LEFT"
+                            player.to_x = 0
                         player2.to_x -= player.speed
                     if event.key == pygame.K_RIGHT:
+                        if (player2KeyInit != "RIGHT"):
+                            player2KeyInit = "RIGHT"
+                            player.to_x = 0
                         player2.to_x += player.speed
 
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_a or event.key == pygame.K_d:
+                    playerKeyInit = None
                     player.to_x = 0
                 if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
+                    player2KeyInit = None
                     player2.to_x = 0
                 
-
+            if event.type == pygame.K_ESCAPE:
+                pass
+            
         # 만약 구역이 end 이라면
         elif area == areaList[4]:
             if event.type == pygame.KEYDOWN:    # 키가 눌렸을 때
@@ -250,9 +275,10 @@ while running:
         screen.blit(settings["background_theme"].render_update(lang_config), (screen_width / 4 + 5, screen_height / 2 + 100))
         screen.blit(settings["background_solid"].render_update(lang_config), (screen_width / 4 + 5, screen_height / 2 + 120))
         screen.blit(settings["use_sound"].render_update(lang_config), (screen_width / 2 + 150, screen_height / 2 + -15))
-        screen.blit(settings["fps_show"].render_update(lang_config), (screen_width / 2 + 150, screen_height / 2 + 5))
-        screen.blit(settings["fps_set"].render_update(lang_config), (screen_width / 2 + 150, screen_height / 2 + 25))
-        screen.blit(settings["language"].render_update(lang_config), (screen_width / 2 + 150, screen_height / 2 + 45))
+        screen.blit(settings["volume"].render_update(lang_config), (screen_width / 2 + 150, screen_height / 2 + 5))
+        screen.blit(settings["fps_show"].render_update(lang_config), (screen_width / 2 + 150, screen_height / 2 + 25))
+        screen.blit(settings["fps_set"].render_update(lang_config), (screen_width / 2 + 150, screen_height / 2 + 45))
+        screen.blit(settings["language"].render_update(lang_config), (screen_width / 2 + 150, screen_height / 2 + 65))
 
     # info 구역
     elif area == areaList[2]:

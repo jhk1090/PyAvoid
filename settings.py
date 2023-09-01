@@ -87,6 +87,16 @@ class UseSound(root):
         }
         self.main = self.selection[self.selection_index]
 
+class Volume(root):
+    def __init__(self):
+        super().__init__()
+        self.selection = [60, 80, 100, 0, 20, 40]
+        self.localization = {
+            "En-US": [60, 80, 100, 0, 20, 40],
+            "Ko-KR": [60, 80, 100, 0, 20, 40]
+        }
+        self.main = self.selection[self.selection_index]
+
 class BackgroundTheme(root):
     def __init__(self):
         super().__init__()
@@ -171,7 +181,8 @@ settings: dict = {
     "background_solid": BackgroundSolid(),
     # preference
     "use_sound": UseSound(),
+    "volume": Volume(),
     "fps_show": FpsShow(),
     "fps_set": FpsSet(),
-    "language": Language()
+    "language": Language(),
 }
