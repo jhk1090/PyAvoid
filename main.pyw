@@ -111,6 +111,8 @@ running = True
 playerKeyInit = None # None, "A", "D"
 player2KeyInit = None # None, "LEFT", "RIGHT"
 
+isPause = False
+
 while running:
     dt = clock.tick(settings["fps_set"].main)                                                        # fps 설정
     fps = clock.get_fps()                                                           # fps 구하기
@@ -221,6 +223,20 @@ while running:
                             player2KeyInit = "RIGHT"
                             player.to_x = 0
                         player2.to_x += player.speed
+                if event.key == pygame.K_ESCAPE and not isPause:
+                    isPause = True
+                if event.key == pygame.K_SPACE and isPause:
+                    isPause = False
+                if event.key == pygame.K_LCTRL and isPause:
+                    isPause = False
+                    area = areaList[0]
+                    player.reset()
+                    player2.reset()
+                    entity.PoopCount = 0
+                    entity.PoopList = []
+                    entity.ItemCount = 0
+                    entity.ItemList = []
+                    pygame.display.update()
 
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_a or event.key == pygame.K_d:
@@ -229,10 +245,7 @@ while running:
                 if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
                     player2KeyInit = None
                     player2.to_x = 0
-                
-            if event.type == pygame.K_ESCAPE:
-                pass
-            
+
         # 만약 구역이 end 이라면
         elif area == areaList[4]:
             if event.type == pygame.KEYDOWN:    # 키가 눌렸을 때
@@ -292,8 +305,11 @@ while running:
         if not sound.isStart:
             sound.play()
         
-        background = loadBackground(asset.background["default"])[0]       # 배경화면 로딩
-        screen.blit(background, (0, 0))
+        sound.stop() if isPause else ""
+
+        background, background_filter = loadBackground(asset.background["default"], asset.background["filter"]["on_pause"])       # 배경화면 로딩
+        background_darken = loadBackground(asset.background["darken"])[0]
+        screen.blit(background_darken, (0, 0)) if isPause else screen.blit(background, (0, 0))
 
         if settings["player_type"].main == "Single":
             if player.checkLevel() < 3 and sound.isToned:
@@ -317,19 +333,19 @@ while running:
                 sound.toneUp()
                 sound.play()
 
-            player2.move(dt)
+            player2.move(dt) if not isPause else ""
             player2.limitPos()
             player2.setRect()
             player2.draw()
 
-        player.move(dt)     # 프레임을 인자로 해서 이동
+        player.move(dt) if not isPause else ""     # 프레임을 인자로 해서 이동
         player.limitPos()   # 제한되는 지 확인
         player.setRect()    # rect 설정하기
         player.draw()       # 출력
 
         isDeleted = False
         for index, ItemInst in enumerate(entity.ItemList):
-            ItemInst.move(dt)
+            ItemInst.move(dt) if not isPause else ""
             ItemInst.setRect()
             if player.rect.colliderect(ItemInst.rect) and not player.isDie():
                 player.giveHeal(ItemInst.heal)
@@ -353,7 +369,7 @@ while running:
         isDeleted = False
         delObj = []
         for index, PoopInst in enumerate(entity.PoopList):
-            PoopInst.move(dt)
+            PoopInst.move(dt) if not isPause else ""
             PoopInst.setRect()
             if player.rect.colliderect(PoopInst.rect) and not player.isDie():  # 충돌 감지
                 player.giveDamage(PoopInst.damage)
@@ -438,7 +454,7 @@ while running:
             healthboard2 = game_font.render("P2: HP: " + str(player2.health), True, (255, 255, 255))   # 점수를 화면에 렌더링
             screen.blit(healthboard2, (screen_width / 2 + 35, 35))
         screen.blit(fpscounter, (screen_width - 65, 5))
-
+        screen.blit(background_filter, (0, 0)) if isPause else ""
     # end 구역
     elif area == areaList[4]:
         sound.stop()

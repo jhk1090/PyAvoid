@@ -18,7 +18,9 @@ background = {
         "on_info": [f"{this_path}\\asset\\background\\filter\\en\\on_info.png",
                     f"{this_path}\\asset\\background\\filter\\ko\\on_info.png",],
         "on_setting": [f"{this_path}\\asset\\background\\filter\\en\\on_setting.png",
-                       f"{this_path}\\asset\\background\\filter\\ko\\on_setting.png",]
+                       f"{this_path}\\asset\\background\\filter\\ko\\on_setting.png",],
+        "on_pause": [f"{this_path}\\asset\\background\\filter\\en\\on_pause.png",
+        f"{this_path}\\asset\\background\\filter\\ko\\on_pause.png",]
     }
 }
 
