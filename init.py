@@ -1,9 +1,12 @@
+from entity import Player
+from settings import settings
 import asset
 import pickle
 from pygame.locals import *
 import pygame
 
 HIGHSCORE = 0
+
 
 def load_data():
     global HIGHSCORE
@@ -29,6 +32,19 @@ def load_data():
                 }
             }, file)
 
+
+def save_data(record):
+    global HIGHSCORE
+    if HIGHSCORE < record:
+        HIGHSCORE = record
+        with open("score.dat", "wb") as file:
+            pickle.dump({
+                "score": {
+                    "highest": HIGHSCORE
+                }
+            }, file)
+
+
 load_data()
 
 # 기본 설정 (수정 금지)
@@ -43,10 +59,9 @@ clock = pygame.time.Clock()
 background = pygame.image.load(asset.background["default"][0])
 setting_font = pygame.font.Font(asset.font["NeoDunggeunmo"], 22)
 
-from settings import settings
-from entity import Player
 
 # 음악 재생
+
 class Sound:
     def __init__(self):
         self.soundtrack = asset.sound["rollin_at_5"]
@@ -70,7 +85,7 @@ class Sound:
             pygame.mixer.music.play(1000, 0.0)
             if (settings["volume"].main == 0):
                 pygame.mixer.music.set_volume(0)
-            else:    
+            else:
                 pygame.mixer.music.set_volume(settings["volume"].main / 100)
             self.isStart = True
 
@@ -87,6 +102,7 @@ class Sound:
         self.load = pygame.mixer.music.load(self.soundtrack[0])
         self.isStart = False
         self.isToned = False
+
 
 def loadBackground(backType, filter=None) -> list:
     returnValue = []
@@ -106,9 +122,10 @@ def loadBackground(backType, filter=None) -> list:
             returnValue.append(pygame.image.load(filter[0]))
         elif settings["language"].main == "Ko-KR":
             returnValue.append(pygame.image.load(filter[1]))
-    
+
     return tuple(returnValue)
-    
+
+
 # 만약 게임오버라면,
 isGameOver = False
 
@@ -117,7 +134,8 @@ areaList = ["title", "setting", "info", "start", "end"]    # 구역 목록
 area = areaList[0]                      # 현재 구역
 
 # 인스턴스
-player = Player(asset.entity["sprite"], screen)                       # 플레이어 메인 인스턴스
+# 플레이어 메인 인스턴스
+player = Player(asset.entity["sprite"], screen)
 player2 = Player(asset.entity["sprite2"], screen)
 sound = Sound()                         # 배경 음악
 

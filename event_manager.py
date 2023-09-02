@@ -14,6 +14,7 @@ move2Right = False
 isMoved = False
 is2Moved = False
 
+
 def reset():
     global moveLeft, moveRight, move2Left, move2Right, isMoved, is2Moved
     moveLeft = False
@@ -23,6 +24,7 @@ def reset():
     isMoved = False
     is2Moved = False
     init.isGameOver = False
+    init.isPause = False
     init.player.reset()
     init.player2.reset()
     entity.PoopCount = 0
@@ -30,6 +32,7 @@ def reset():
     entity.ItemCount = 0
     entity.ItemList = []
     pygame.display.update()
+
 
 def call():
     global moveLeft, moveRight, move2Left, move2Right, isMoved, is2Moved
@@ -158,22 +161,28 @@ def call():
                 elif event.key == pygame.K_RIGHT and move2Right:
                     init.player2.to_x = 0
                     move2Right = False
-                print("==UP==\n", init.player.to_x, moveLeft, moveRight, move2Left, move2Right, "\n====")
+                # print("==UP==\n", init.player.to_x, moveLeft, moveRight, move2Left, move2Right, "\n====")
         # 만약 구역이 end 이라면
         elif init.area == init.areaList[4]:
             if event.type == pygame.KEYDOWN:    # 키가 눌렸을 때
                 if event.key == pygame.K_SPACE:        # 스페이스 바를 눌렀을 때, 초기화 및 초기 화면
                     init.area = init.areaList[0]
+                    if settings["player_type"].main == "Single":
+                        init.save_data(init.player.score)
                     reset()
-                    
+
     if not isMoved:
-        if moveLeft: init.player.to_x = init.player.speed * -1
-        if moveRight: init.player.to_x = init.player.speed
+        if moveLeft:
+            init.player.to_x = init.player.speed * -1
+        if moveRight:
+            init.player.to_x = init.player.speed
         isMoved = True
-    
+
     if not is2Moved:
-        if move2Left: init.player2.to_x = init.player2.speed * -1
-        if move2Right: init.player2.to_x = init.player2.speed
+        if move2Left:
+            init.player2.to_x = init.player2.speed * -1
+        if move2Right:
+            init.player2.to_x = init.player2.speed
         is2Moved = True
 
     # if moveLeft or moveRight or move2Left or move2Right:

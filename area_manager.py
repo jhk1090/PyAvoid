@@ -6,6 +6,7 @@ import asset
 import init
 from pygame.locals import *
 
+
 def call():
     # fps 설정
     dt = init.clock.tick(settings["fps_set"].main)
@@ -37,7 +38,7 @@ def call():
     # end 구역
     elif init.area == init.areaList[4]:
         areaEnd(fpscounter)
-        
+
 
 def areaTitle(fpscounter):
     init.sound.setMusicTheme()
@@ -47,6 +48,7 @@ def areaTitle(fpscounter):
     init.screen.blit(background, (0, 0))
     init.screen.blit(background_filter, (0, 0))
     init.screen.blit(fpscounter, (init.screen_width - 65, 5))
+
 
 def areaSetting(fpscounter):
     for i in settings.keys():
@@ -83,6 +85,7 @@ def areaSetting(fpscounter):
     init.screen.blit(settings["language"].render_update(
         lang_config), (init.screen_width / 2 + 150, init.screen_height / 2 + 65))
 
+
 def areaInfo(fpscounter):
     background, background_filter = init.loadBackground(
         asset.background["darken"], asset.background["filter"]["on_info"])
@@ -90,9 +93,10 @@ def areaInfo(fpscounter):
     init.screen.blit(background_filter, (0, 0))
     init.screen.blit(fpscounter, (init.screen_width - 65, 5))
 
+
 def areaStart(fpscounter, dt):
     if not init.sound.isStart:
-            init.sound.play()
+        init.sound.play()
 
     init.sound.stop() if init.isPause else ""
 
@@ -100,7 +104,7 @@ def areaStart(fpscounter, dt):
         asset.background["default"], asset.background["filter"]["on_pause"])       # 배경화면 로딩
     background_darken = init.loadBackground(asset.background["darken"])[0]
     init.screen.blit(background_darken, (0, 0)
-                ) if init.isPause else init.screen.blit(background, (0, 0))
+                     ) if init.isPause else init.screen.blit(background, (0, 0))
 
     if settings["player_type"].main == "Single":
         if init.player.checkLevel() < 3 and init.sound.isToned:
@@ -162,7 +166,8 @@ def areaStart(fpscounter, dt):
     for index, PoopInst in enumerate(entity.PoopList):
         PoopInst.move(dt) if not init.isPause else ""
         PoopInst.setRect()
-        if init.player.rect.colliderect(PoopInst.rect) and not init.player.isDie():  # 충돌 감지
+        # 충돌 감지
+        if init.player.rect.colliderect(PoopInst.rect) and not init.player.isDie():
             init.player.giveDamage(PoopInst.damage)
             delObj.append(entity.PoopList[index])
             del entity.PoopList[index]
@@ -254,42 +259,76 @@ def areaStart(fpscounter, dt):
     init.screen.blit(fpscounter, (init.screen_width - 65, 5))
     init.screen.blit(background_filter, (0, 0)) if init.isPause else ""
 
+
 def areaEnd(fpscounter):
     init.sound.stop()
     init.sound.reset()
     background, background_filter = init.loadBackground(
         asset.background["darken"], asset.background["filter"]["on_end"])       # 블러 배경화면 로딩
+    background, background_record_filter = init.loadBackground(
+        asset.background["darken"], asset.background["filter"]["on_end_record"])
     init.screen.blit(background, (0, 0))
-    init.screen.blit(background_filter, (0, 0))
-    init.screen.blit(fpscounter, (init.screen_width - 65, 5))
 
     init.player.score = round(init.player.score, 2)
     init.player2.score = round(init.player2.score, 2)
     game_font = pygame.font.Font(asset.font["NeoDunggeunmo"], 30)
     game_font_emphasize = pygame.font.Font(asset.font["NeoDunggeunmo"], 45)
+    WHITE = (255, 255, 255)
+    GRAY = (170, 170, 170)
+    GOLD = (249, 232, 104)
+    SUBCOLOR = (0, 0, 0)
+    scoreDiff = init.player.score - init.HIGHSCORE
+    renderedSubString = ""
+    renderedFilter = background_filter
+    if scoreDiff > 0:
+        SUBCOLOR = GOLD
+        renderedSubString = f"{str(init.HIGHSCORE)} (+{str(scoreDiff)})"
+        renderedFilter = background_record_filter
+    else:
+        SUBCOLOR = GRAY
+        renderedSubString = f"{str(init.HIGHSCORE)} ({str(scoreDiff)})"
+
+    init.screen.blit(renderedFilter, (0, 0))
+    init.screen.blit(fpscounter, (init.screen_width - 65, 5))
+
     if settings["player_type"].main == "Single":
         if settings["language"].main == "Ko-KR":
-            score_label = game_font.render("점수: ", True, (255, 255, 255))
-            score = game_font_emphasize.render(str(init.player.score), True, (255,255, 255))
-            score_label_high = game_font.render("개인 최고 기록: ", True, (170, 170, 170))
-            score_high = game_font.render(str(init.HIGHSCORE) + " (" + str(init.player.score - init.HIGHSCORE) + ")", True, (170, 170, 170))
+            score_label = game_font.render("점수: ", True, WHITE)
+            score = game_font_emphasize.render(
+                str(init.player.score), True, WHITE)
+            score_label_high = game_font.render("개인 최고 기록: ", True, SUBCOLOR)
+            score_high = game_font.render(renderedSubString, True, SUBCOLOR)
 
-            init.screen.blit(score_label, (init.screen_width / 3 + 5, init.screen_height / 2 + 55))
-            init.screen.blit(score, (init.screen_width / 2 + 20, init.screen_height / 2 + 45))
-            init.screen.blit(score_label_high, (init.screen_width / 4 - 90, init.screen_height / 2 + 90))
-            init.screen.blit(score_high, (init.screen_width / 2 + 20, init.screen_height / 2 + 90))
+            init.screen.blit(score_label, (init.screen_width /
+                             3 + 5, init.screen_height / 2 + 55))
+            init.screen.blit(score, (init.screen_width / 2 +
+                             20, init.screen_height / 2 + 45))
+            init.screen.blit(
+                score_label_high, (init.screen_width / 4 - 90, init.screen_height / 2 + 90))
+            init.screen.blit(score_high, (init.screen_width /
+                             2 + 20, init.screen_height / 2 + 90))
         elif settings["language"].main == "En-US":
-            score_label = game_font.render("Score: ", True, (255, 255, 255))
-            score = game_font_emphasize.render(str(init.player.score), True, (255,255, 255))
-            score_label_high = game_font.render("Highest Score: ", True, (170, 170, 170))
-            score_high = game_font.render(str(init.HIGHSCORE) + " (" + str(init.player.score - init.HIGHSCORE) + ")", True, (170, 170, 170))
+            score_label = game_font.render("Score: ", True, WHITE)
+            score = game_font_emphasize.render(
+                str(init.player.score), True, WHITE)
+            score_label_high = game_font.render(
+                "Highest Score: ", True, SUBCOLOR)
+            score_high = game_font.render(renderedSubString, True, SUBCOLOR)
 
-            init.screen.blit(score_label, (init.screen_width / 3 - 20, init.screen_height / 2 + 55))
-            init.screen.blit(score, (init.screen_width / 2 + 20, init.screen_height / 2 + 45))
-            init.screen.blit(score_label_high, (init.screen_width / 4 - 80, init.screen_height / 2 + 90))
-            init.screen.blit(score_high, (init.screen_width / 2 + 20, init.screen_height / 2 + 90))
+            init.screen.blit(score_label, (init.screen_width /
+                             3 - 20, init.screen_height / 2 + 55))
+            init.screen.blit(score, (init.screen_width / 2 +
+                             20, init.screen_height / 2 + 45))
+            init.screen.blit(
+                score_label_high, (init.screen_width / 4 - 80, init.screen_height / 2 + 90))
+            init.screen.blit(score_high, (init.screen_width /
+                             2 + 20, init.screen_height / 2 + 90))
     elif settings["player_type"].main == "Multi":
-        finalScore = game_font.render("P1: Score: " + str(init.player.score), True, (255, 255, 255))   # 최종 점수 렌더링
-        init.screen.blit(finalScore, (init.screen_width / 3, init.screen_height / 2 + 45))
-        finalScore2 = game_font.render("P2: Score: " + str(init.player2.score), True, (255, 255, 255))   # 최종 점수 렌더링
-        init.screen.blit(finalScore2, (init.screen_width / 3, init.screen_height / 2 + 80))
+        finalScore = game_font.render(
+            "P1: Score: " + str(init.player.score), True, WHITE)   # 최종 점수 렌더링
+        init.screen.blit(finalScore, (init.screen_width /
+                         3, init.screen_height / 2 + 45))
+        finalScore2 = game_font.render(
+            "P2: Score: " + str(init.player2.score), True, WHITE)   # 최종 점수 렌더링
+        init.screen.blit(finalScore2, (init.screen_width /
+                         3, init.screen_height / 2 + 80))

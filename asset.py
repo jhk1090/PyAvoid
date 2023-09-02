@@ -15,6 +15,8 @@ background = {
                      f"{this_path}\\asset\\background\\filter\\ko\\on_title.png",],
         "on_end": [f"{this_path}\\asset\\background\\filter\\en\\on_end.png",
                    f"{this_path}\\asset\\background\\filter\\ko\\on_end.png",],
+        "on_end_record": [f"{this_path}\\asset\\background\\filter\\en\\on_end_record.png",
+                   f"{this_path}\\asset\\background\\filter\\ko\\on_end_record.png",],
         "on_info": [f"{this_path}\\asset\\background\\filter\\en\\on_info.png",
                     f"{this_path}\\asset\\background\\filter\\ko\\on_info.png",],
         "on_setting": [f"{this_path}\\asset\\background\\filter\\en\\on_setting.png",
