@@ -266,11 +266,30 @@ def areaEnd(fpscounter):
     init.player.score = round(init.player.score, 2)
     init.player2.score = round(init.player2.score, 2)
     game_font = pygame.font.Font(asset.font["NeoDunggeunmo"], 30)
-    finalScore = game_font.render(
-        "P1: Score: " + str(init.player.score), True, (255, 255, 255))   # 최종 점수 렌더링
-    init.screen.blit(finalScore, (init.screen_width / 3, init.screen_height / 2 + 45))
-    if settings["player_type"].main == "Multi":
-        finalScore2 = game_font.render(
-            "P2: Score: " + str(init.player2.score), True, (255, 255, 255))   # 최종 점수 렌더링
-        init.screen.blit(finalScore2, (init.screen_width /
-                    3, init.screen_height / 2 + 80))
+    game_font_emphasize = pygame.font.Font(asset.font["NeoDunggeunmo"], 45)
+    if settings["player_type"].main == "Single":
+        if settings["language"].main == "Ko-KR":
+            score_label = game_font.render("점수: ", True, (255, 255, 255))
+            score = game_font_emphasize.render(str(init.player.score), True, (255,255, 255))
+            score_label_high = game_font.render("개인 최고 기록: ", True, (170, 170, 170))
+            score_high = game_font.render(str(init.HIGHSCORE) + " (" + str(init.player.score - init.HIGHSCORE) + ")", True, (170, 170, 170))
+
+            init.screen.blit(score_label, (init.screen_width / 3 + 5, init.screen_height / 2 + 55))
+            init.screen.blit(score, (init.screen_width / 2 + 20, init.screen_height / 2 + 45))
+            init.screen.blit(score_label_high, (init.screen_width / 4 - 90, init.screen_height / 2 + 90))
+            init.screen.blit(score_high, (init.screen_width / 2 + 20, init.screen_height / 2 + 90))
+        elif settings["language"].main == "En-US":
+            score_label = game_font.render("Score: ", True, (255, 255, 255))
+            score = game_font_emphasize.render(str(init.player.score), True, (255,255, 255))
+            score_label_high = game_font.render("Highest Score: ", True, (170, 170, 170))
+            score_high = game_font.render(str(init.HIGHSCORE) + " (" + str(init.player.score - init.HIGHSCORE) + ")", True, (170, 170, 170))
+
+            init.screen.blit(score_label, (init.screen_width / 3 - 20, init.screen_height / 2 + 55))
+            init.screen.blit(score, (init.screen_width / 2 + 20, init.screen_height / 2 + 45))
+            init.screen.blit(score_label_high, (init.screen_width / 4 - 80, init.screen_height / 2 + 90))
+            init.screen.blit(score_high, (init.screen_width / 2 + 20, init.screen_height / 2 + 90))
+    elif settings["player_type"].main == "Multi":
+        finalScore = game_font.render("P1: Score: " + str(init.player.score), True, (255, 255, 255))   # 최종 점수 렌더링
+        init.screen.blit(finalScore, (init.screen_width / 3, init.screen_height / 2 + 45))
+        finalScore2 = game_font.render("P2: Score: " + str(init.player2.score), True, (255, 255, 255))   # 최종 점수 렌더링
+        init.screen.blit(finalScore2, (init.screen_width / 3, init.screen_height / 2 + 80))

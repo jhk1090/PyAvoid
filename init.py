@@ -1,6 +1,35 @@
 import asset
+import pickle
 from pygame.locals import *
 import pygame
+
+HIGHSCORE = 0
+
+def load_data():
+    global HIGHSCORE
+    origin = {}
+    try:
+        with open('score.dat', 'rb') as file:
+            origin = pickle.load(file)
+    except FileNotFoundError as e:
+        with open('score.dat', 'wb') as file:
+            pickle.dump({}, file)
+
+    if type(origin) != dict:
+        with open('score.dat', 'wb') as file:
+            pickle.dump({}, file)
+
+    if "score" in origin:
+        HIGHSCORE = origin["score"]["highest"]
+    else:
+        with open('score.dat', 'wb') as file:
+            pickle.dump({
+                "score": {
+                    "highest": 0
+                }
+            }, file)
+
+load_data()
 
 # 기본 설정 (수정 금지)
 screen_width = 480
@@ -96,9 +125,5 @@ settings["mode"].isSelect(True)
 
 # 이벤트 루프
 running = True
-
-# 왼쪽으로 꾹 누르다가 오른쪽을 누르면 걸림
-playerKeyInit = None # None, "A", "D"
-player2KeyInit = None # None, "LEFT", "RIGHT"
 
 isPause = False

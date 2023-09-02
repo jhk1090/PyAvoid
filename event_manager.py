@@ -7,7 +7,32 @@ import entity
 import init
 from entity import Poop, AidKit
 
+moveLeft = False
+moveRight = False
+move2Left = False
+move2Right = False
+isMoved = False
+is2Moved = False
+
+def reset():
+    global moveLeft, moveRight, move2Left, move2Right, isMoved, is2Moved
+    moveLeft = False
+    moveRight = False
+    move2Left = False
+    move2Right = False
+    isMoved = False
+    is2Moved = False
+    init.isGameOver = False
+    init.player.reset()
+    init.player2.reset()
+    entity.PoopCount = 0
+    entity.PoopList = []
+    entity.ItemCount = 0
+    entity.ItemList = []
+    pygame.display.update()
+
 def call():
+    global moveLeft, moveRight, move2Left, move2Right, isMoved, is2Moved
     # 이벤트 관리
     for event in pygame.event.get():
         # 만약 X버튼을 눌렀을때
@@ -95,58 +120,61 @@ def call():
         elif init.area == init.areaList[3]:
             if event.type == pygame.KEYDOWN:    # 키가 눌렸을때
                 if not init.player.isDie():
-                    if event.key == pygame.K_a:            # a는 왼쪽, d는 오른쪽으로 이동
-                        if (init.playerKeyInit != "A"):
-                            init.playerKeyInit = "A"
-                            init.player.to_x = 0
-                        init.player.to_x -= init.player.speed
-                    if event.key == pygame.K_d:
-                        if (init.playerKeyInit != "D"):
-                            init.playerKeyInit = "D"
-                            init.player.to_x = 0
-                        init.player.to_x += init.player.speed
+                    if event.key == pygame.K_a and not moveLeft:            # a는 왼쪽, d는 오른쪽으로 이동
+                        moveLeft = True
+                        moveRight = False
+                        isMoved = False
+                    if event.key == pygame.K_d and not moveRight:
+                        moveRight = True
+                        moveLeft = False
+                        isMoved = False
                 if not init.player2.isDie():
-                    if event.key == pygame.K_LEFT:            # <-는 왼쪽, ->는 오른쪽으로 이동
-                        if (init.player2KeyInit != "LEFT"):
-                            init.player2KeyInit = "LEFT"
-                            init.player2.to_x = 0
-                        init.player2.to_x -= init.player.speed
-                    if event.key == pygame.K_RIGHT:
-                        if (init.player2KeyInit != "RIGHT"):
-                            init.player2KeyInit = "RIGHT"
-                            init.player2.to_x = 0
-                        init.player2.to_x += init.player.speed
+                    if event.key == pygame.K_LEFT and not move2Left:            # <-는 왼쪽, ->는 오른쪽으로 이동
+                        move2Left = True
+                        move2Right = False
+                        is2Moved = False
+                    if event.key == pygame.K_RIGHT and not move2Right:
+                        move2Right = True
+                        move2Left = False
+                        is2Moved = False
                 if event.key == pygame.K_ESCAPE and not init.isPause:
                     init.isPause = True
                 if event.key == pygame.K_SPACE and init.isPause:
                     init.isPause = False
                 if event.key == pygame.K_LCTRL and init.isPause:
-                    init.isPause = False
                     init.area = init.areaList[0]
-                    init.player.reset()
-                    init.player2.reset()
-                    entity.PoopCount = 0
-                    entity.PoopList = []
-                    entity.ItemCount = 0
-                    entity.ItemList = []
+                    reset()
                     pygame.display.update()
-                print(init.playerKeyInit, init.player.to_x)
             if event.type == pygame.KEYUP:
-                if event.key == pygame.K_a or event.key == pygame.K_d:
+                if event.key == pygame.K_a and moveLeft:
                     init.player.to_x = 0
-                if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
+                    moveLeft = False
+                elif event.key == pygame.K_d and moveRight:
+                    init.player.to_x = 0
+                    moveRight = False
+                elif event.key == pygame.K_LEFT and move2Left:
                     init.player2.to_x = 0
-
+                    move2Left = False
+                elif event.key == pygame.K_RIGHT and move2Right:
+                    init.player2.to_x = 0
+                    move2Right = False
+                print("==UP==\n", init.player.to_x, moveLeft, moveRight, move2Left, move2Right, "\n====")
         # 만약 구역이 end 이라면
         elif init.area == init.areaList[4]:
             if event.type == pygame.KEYDOWN:    # 키가 눌렸을 때
                 if event.key == pygame.K_SPACE:        # 스페이스 바를 눌렀을 때, 초기화 및 초기 화면
                     init.area = init.areaList[0]
-                    init.isGameOver = False
-                    init.player.reset()
-                    init.player2.reset()
-                    entity.PoopCount = 0
-                    entity.PoopList = []
-                    entity.ItemCount = 0
-                    entity.ItemList = []
-                    pygame.display.update()
+                    reset()
+                    
+    if not isMoved:
+        if moveLeft: init.player.to_x = init.player.speed * -1
+        if moveRight: init.player.to_x = init.player.speed
+        isMoved = True
+    
+    if not is2Moved:
+        if move2Left: init.player2.to_x = init.player2.speed * -1
+        if move2Right: init.player2.to_x = init.player2.speed
+        is2Moved = True
+
+    # if moveLeft or moveRight or move2Left or move2Right:
+    #     print(init.player.to_x, moveLeft, moveRight, move2Left, move2Right)
