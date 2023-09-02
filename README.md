@@ -1,6 +1,6 @@
 # PyAvoid
 똥 피하기 Pygame 버전입니다. 떨어지는 똥을 피하세요!!\
-**여기서 다운받을 수 있습니다. [다운로드](https://github.com/jhk1090/PyAvoid/releases/tag/v.1.2exe)**
+**여기서 다운받을 수 있습니다. [다운로드](https://github.com/jhk1090/PyAvoid/releases/tag/v.1.2miniexe)**
 
 ## 시작하기
 ### 설치 방법
