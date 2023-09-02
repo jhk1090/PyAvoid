@@ -109,12 +109,12 @@ def call():
                     if event.key == pygame.K_LEFT:            # <-는 왼쪽, ->는 오른쪽으로 이동
                         if (init.player2KeyInit != "LEFT"):
                             init.player2KeyInit = "LEFT"
-                            init.player.to_x = 0
+                            init.player2.to_x = 0
                         init.player2.to_x -= init.player.speed
                     if event.key == pygame.K_RIGHT:
                         if (init.player2KeyInit != "RIGHT"):
                             init.player2KeyInit = "RIGHT"
-                            init.player.to_x = 0
+                            init.player2.to_x = 0
                         init.player2.to_x += init.player.speed
                 if event.key == pygame.K_ESCAPE and not init.isPause:
                     init.isPause = True
@@ -130,13 +130,11 @@ def call():
                     entity.ItemCount = 0
                     entity.ItemList = []
                     pygame.display.update()
-
+                print(init.playerKeyInit, init.player.to_x)
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_a or event.key == pygame.K_d:
-                    init.playerKeyInit = None
                     init.player.to_x = 0
                 if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
-                    init.player2KeyInit = None
                     init.player2.to_x = 0
 
         # 만약 구역이 end 이라면
